@@ -1,0 +1,69 @@
+{
+  "title": "T-Mobile Home Internet",
+  "config": {
+    "title": "Connect to the T-Mobile Home Internet Gateway",
+    "step": {
+      "user": {
+        "title": "Gateway Admin Credentials",
+        "data": {
+          "username": "Admin Username",
+          "password": "Admin Password"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect",
+      "invalid_auth": "Invalid authentication",
+      "unknown": "Unexpected error"
+    },
+    "abort": {
+      "already_configured": "Device is already configured"
+    }
+  },
+  "services": {
+    "reboot_gateway": {
+      "name": "Reboot Gateway",
+      "description": "Reboot T-Mobile Home Internet Gateway."
+    },
+    "wifi24ghz_enable": {
+      "name": "Enable/disable 2.4GHz Wi-Fi",
+      "description": "Enable/disable 2.4GHz Wi-Fi on T-Mobile Home Internet Gateway.",
+      "fields": {
+        "enabled": {
+          "name": "Enabled",
+          "description": "Turns on or off the 2.4GHz WiFi. WARNING: Only turn WiFi off if you have a wired connection to your gateway. Gateway will reset if this setting is changed, and may lose communications for a minute or more."
+        }
+      }
+    },
+    "wifi50ghz_enable": {
+      "name": "Enable/disable 5.0GHz Wi-Fi",
+      "description": "Enable/disable 5.0GHz Wi-Fi on T-Mobile Home Internet Gateway.",
+      "fields": {
+        "enabled": {
+          "name": "Enabled",
+          "description": "Turns on or off the 5.0GHz WiFi. WARNING: Only turn WiFi off if you have a wired connection to your gateway. Gateway will reset if this setting is changed, and may lose communications for a minute or more."
+        }
+      }
+    },
+    "set_wifi24ghz_power": {
+      "name": "Set 2.4GHz Wi-Fi Transmission Power",
+      "description": "Set 2.4GHz Wi-Fi transmission power level on T-Mobile Home Internet Gateway.",
+      "fields": {
+        "power_level": {
+          "name": "Transmission Power Level",
+          "description": "Transmision power level for 2.4GHz Wi-Fi: full or half power. Gateway will reset if this setting is changed, and may lose communications for a minute or more."
+        }
+      }
+    },
+    "set_wifi50ghz_power": {
+      "name": "Set 5.0GHz Wi-Fi Transmission Power",
+      "description": "Set 5.0GHz Wi-Fi transmission power level on T-Mobile Home Internet Gateway.",
+      "fields": {
+        "power_level": {
+          "name": "Transmission Power Level",
+          "description": "Transmision power level for 5.0GHz Wi-Fi: full or half power. Gateway will reset if this setting is changed, and may lose communications for a minute or more."
+        }
+      }
+    }
+  }
+}

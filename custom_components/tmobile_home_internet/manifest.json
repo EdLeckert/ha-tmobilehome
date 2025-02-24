@@ -1,0 +1,16 @@
+{
+  "domain": "tmobile_home_internet",
+  "name": "T-Mobile Home Internet",
+  "codeowners": [
+    "@edleckert"
+  ],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/EdLeckert/ha-tmobilehome",
+  "homekit": {},
+  "iot_class": "local_polling",
+  "requirements": [ "pytmhi==1.0.0" ],
+  "ssdp": [],
+  "version": "0.0.1",
+  "zeroconf": []
+}

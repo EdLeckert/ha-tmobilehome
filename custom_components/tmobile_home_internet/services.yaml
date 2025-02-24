@@ -1,0 +1,64 @@
+reboot_gateway:
+  target:
+    entity:
+      integration: tmobile_home_internet
+      device_class: gateway
+
+wifi24ghz_enable:
+  target:
+    entity:
+      integration: tmobile_home_internet
+      device_class: gateway
+  fields:
+    enabled:
+      required: true
+      default: True
+      example: False
+      selector:
+        boolean:
+
+wifi50ghz_enable:
+  target:
+    entity:
+      integration: tmobile_home_internet
+      device_class: gateway
+  fields:
+    enabled:
+      required: true
+      default: True
+      example: False
+      selector:
+        boolean:
+
+set_wifi24ghz_power:
+  target:
+    entity:
+      integration: tmobile_home_internet
+      device_class: gateway
+  fields:
+    power_level:
+      required: true
+      default: Full
+      example: Half
+      selector:
+        select:
+          options:
+            - Full
+            - Half
+
+set_wifi50ghz_power:
+  target:
+    entity:
+      integration: tmobile_home_internet
+      device_class: gateway
+  fields:
+    power_level:
+      required: true
+      default: Full
+      example: Half
+      selector:
+        select:
+          options:
+            - Full
+            - Half
+

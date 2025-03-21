@@ -41,7 +41,7 @@ Aggregate entities provide the complete set of data available from the gateway.
 ### Simple Entities
 Simple entities can be used directly on dashboards in cards such as the `Entities` card.
 
-All entities begin with `T-Mobile Home Internet`, which will be omitted from the "Friendly Name" here for brevity:
+All entities begin with `T-Mobile`, which will be omitted from the "Friendly Name" here for brevity:
 
 | Friendly Name       | Example State  | Description
 | -------------       | -------------  | -----------
@@ -67,7 +67,7 @@ Aggregate entities contain a group of related values as attributes. They can be 
 `Developer tools` `STATES` tab. To use some of these values in cards on a dashboard, they must first be extracted into 
 a `Template Entity`. See below for examples.
 
-All entities begin with `T-Mobile Home Internet`, which will be omitted from the "Friendly Name" here for brevity:
+All entities begin with `T-Mobile`, which will be omitted from the "Friendly Name" here for brevity:
 
 | Friendly Name      | Example State | State Source | Description
 | -------------      | ------------- | ------------ | -----------
@@ -77,7 +77,7 @@ All entities begin with `T-Mobile Home Internet`, which will be omitted from the
 | `Access Point`     | TMOBILE-xxxx  | SSID Name    | Detailed access point (wireless, or WiFi) settings
 | `Cell Status`      | Bands: b2 n41 | Bands in Use | Detailed cell tower and received signal data (diabled by default)
 
-The `T-Mobile Home Internet Cell Status` entity is disabled by default to prevent bloat of history, 
+The `T-Mobile Cell Status` entity is disabled by default to prevent bloat of history, 
 as it is somewhat large and changes very frequently.
 
 ### Actions
@@ -96,15 +96,15 @@ Actions are available to control the gateway. They are:
 
 ### Create a Template Entity to monitor the gateway's software version
 
-To extract the `softwareVersion` value from the `device` attribute in the `sensor.t_mobile_home_internet_gateway` entity, 
+To extract the `softwareVersion` value from the `device` attribute in the `sensor.t_mobile_gateway` entity, 
 create a Template Sensor Helper or add this to `configuration.yaml`:
 
 ```yaml
 template:
   - sensor:
-      - name: "T-Mobile Home Internet Software Version"
+      - name: "T-Mobile Software Version"
         unique_id: t_mobile_home_internet_softwareVersion
-        state: '{{ state_attr("sensor.t_mobile_home_internet_gateway","device")["softwareVersion"] }}'
+        state: '{{ state_attr("sensor.t_mobile_gateway","device")["softwareVersion"] }}'
 ```
 
 

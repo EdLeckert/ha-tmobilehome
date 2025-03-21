@@ -5,6 +5,7 @@ from typing import Callable, Dict
 from homeassistant.components.switch import (SwitchEntity)
 from homeassistant.core import HomeAssistant
 from homeassistant.util import slugify
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers import entity_platform, service
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -45,17 +46,28 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     return entities
 
 
-class GatewayWiFi24GHzSwitch(CoordinatorEntity, SwitchEntity):
+class GatewaySwitch(CoordinatorEntity, SwitchEntity):
     """Represent a switch for the gateway."""
 
     def __init__(self, hass, entry, coordinator, controller):
-        """Set up a new HA T-Mobile Home Internet WiFi 2.4GHz switch."""
+        """Set up a new HA T-Mobile Home Internet switch."""
         self._hass = hass
         self._entry = entry
         self._coordinator = coordinator
         self._controller = controller
         self._entity_type = "switch"
         super().__init__(coordinator)
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, coordinator.config_entry.entry_id)},
+        )
+
+
+class GatewayWiFi24GHzSwitch(GatewaySwitch):
+    """Represent a switch for the gateway."""
+
+    def __init__(self, hass, entry, coordinator, controller):
+        """Set up a new HA T-Mobile Home Internet WiFi 2.4GHz switch."""
+        super().__init__(hass, entry, coordinator, controller)
 
     @property
     def icon(self) -> str:
@@ -65,12 +77,17 @@ class GatewayWiFi24GHzSwitch(CoordinatorEntity, SwitchEntity):
     @property
     def name(self) -> str:
         """Return the name of this switch."""
-        return f"T-Mobile Home Internet WiFi 2.4GHz"
+        return f"T-Mobile WiFi 2.4GHz"
 
     @property
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
         return slugify(f"{self._entity_type}_tmobile_home_internet_wifi_2_4GHz")
+
+    @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Set entity disabled by default."""
+        return False
 
     @property
     def extra_state_attributes(self):
@@ -102,17 +119,12 @@ class GatewayWiFi24GHzSwitch(CoordinatorEntity, SwitchEntity):
         self._attr_is_on = False
         self.async_write_ha_state()
 
-class GatewayWiFi50GHzSwitch(CoordinatorEntity, SwitchEntity):
+class GatewayWiFi50GHzSwitch(GatewaySwitch):
     """Represent a switch for the gateway."""
 
     def __init__(self, hass, entry, coordinator, controller):
         """Set up a new HA T-Mobile Home Internet WiFi 5.0GHz switch."""
-        self._hass = hass
-        self._entry = entry
-        self._coordinator = coordinator
-        self._controller = controller
-        self._entity_type = "switch"
-        super().__init__(coordinator)
+        super().__init__(hass, entry, coordinator, controller)
 
     @property
     def icon(self) -> str:
@@ -122,12 +134,17 @@ class GatewayWiFi50GHzSwitch(CoordinatorEntity, SwitchEntity):
     @property
     def name(self) -> str:
         """Return the name of this switch."""
-        return f"T-Mobile Home Internet WiFi 5.0GHz"
+        return f"T-Mobile WiFi 5.0GHz"
 
     @property
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
         return slugify(f"{self._entity_type}_tmobile_home_internet_wifi_5_0GHz")
+
+    @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Set entity disabled by default."""
+        return False
 
     @property
     def extra_state_attributes(self):

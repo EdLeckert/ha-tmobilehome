@@ -4,6 +4,8 @@ import voluptuous as vol
 from homeassistant.helpers import config_validation as cv
 
 DOMAIN = "tmobile_home_internet"
+GET_ACCESS_POINT_RETRIES = 20
+GET_ACCESS_POINT_RETRY_SECONDS = 4
 FAST_POLL_SECONDS = 10
 SLOW_POLL_SECONDS = 60
 

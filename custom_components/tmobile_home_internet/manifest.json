@@ -11,6 +11,6 @@
   "iot_class": "local_polling",
   "requirements": [ "pytmhi==1.1.1" ],
   "ssdp": [],
-  "version": "0.0.3",
+  "version": "1.0.0",
   "zeroconf": []
 }

@@ -62,3 +62,15 @@ set_wifi50ghz_power:
             - Full
             - Half
 
+# set_wifi_ssid:
+#   target:
+#     entity:
+#       integration: tmobile_home_internet
+#       device_class: gateway
+#   fields:
+#     ssid:
+#       required: true
+#       example: "MyWifi"
+#       selector:
+#         text:
+#           type: "text"

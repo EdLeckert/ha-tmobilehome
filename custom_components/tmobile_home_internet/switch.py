@@ -6,7 +6,7 @@ from homeassistant.components.switch import (SwitchEntity)
 from homeassistant.core import HomeAssistant
 from homeassistant.util import slugify
 from homeassistant.helpers.device_registry import DeviceInfo
-from homeassistant.helpers import entity_platform, service
+from homeassistant.helpers import entity_platform
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
@@ -24,15 +24,6 @@ async def async_setup_entry(
     """Set up the Home Assistant T-Mobile Home Internet switches."""
     entities = _create_entities(hass, entry)
     async_add_entities(entities)
-
-    platform = entity_platform.async_get_current_platform()
-
-    # # This will call Entity._reboot_gateway
-    # platform.async_register_entity_service(
-    #     SERVICE_REBOOT_GATEWAY,
-    #     SCHEMA_SERVICE_REBOOT_GATEWAY,
-    #     "_reboot_gateway",
-    # )
 
 
 def _create_entities(hass: HomeAssistant, entry: dict):
@@ -77,7 +68,7 @@ class GatewayWiFi24GHzSwitch(GatewaySwitch):
     @property
     def name(self) -> str:
         """Return the name of this switch."""
-        return f"T-Mobile WiFi 2.4GHz"
+        return f"T-Mobile Wi-Fi 2.4GHz"
 
     @property
     def unique_id(self) -> str:
@@ -106,7 +97,7 @@ class GatewayWiFi24GHzSwitch(GatewaySwitch):
         access_point = self.coordinator.data["access_point"]
         access_point["2.4ghz"]["isRadioEnabled"] = True
         await self._hass.async_add_executor_job(self._controller.set_ap_config, access_point)
-        # Doing an async_request_refresh here won't work as the router is resetting.
+        # Doing an async_request_refresh here won't work as the gateway is resetting.
         self._attr_is_on = True
         self.async_write_ha_state()
 
@@ -134,7 +125,7 @@ class GatewayWiFi50GHzSwitch(GatewaySwitch):
     @property
     def name(self) -> str:
         """Return the name of this switch."""
-        return f"T-Mobile WiFi 5.0GHz"
+        return f"T-Mobile Wi-Fi 5.0GHz"
 
     @property
     def unique_id(self) -> str:

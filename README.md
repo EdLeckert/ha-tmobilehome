@@ -38,7 +38,7 @@ Simple entities provide an easy way to display data that is most commonly viewed
 
 Aggregate entities provide the complete set of data available from the gateway.
 
-### Simple Entities
+### Simple Sensor Entities
 Simple entities can be used directly on dashboards in cards such as the `Entities` card.
 
 All entities begin with `T-Mobile`, which will be omitted from the "Friendly Name" here for brevity:
@@ -62,9 +62,9 @@ All entities begin with `T-Mobile`, which will be omitted from the "Friendly Nam
 | `Gateway Uptime`    | 29.2           | The number of hours since the gateway was started
 
 
-### Aggregate Entities
+### Aggregate Sensor Entities
 Aggregate entities contain a group of related values as attributes. They can be viewed using the 
-`Developer tools` `STATES` tab. To use some of these values in cards on a dashboard, they must first be extracted into 
+`Developer tools` `STATES` tab. To use values from these entities in cards on a dashboard, they must first be extracted into 
 a `Template Entity`. See below for examples.
 
 All entities begin with `T-Mobile`, which will be omitted from the "Friendly Name" here for brevity:
@@ -74,11 +74,45 @@ All entities begin with `T-Mobile`, which will be omitted from the "Friendly Nam
 | `Gateway`          | 5G Gateway    | Gateway Name | Detailed gateway device data
 | `Gateway Clients`  | 29            | Client Count | Detailed list of all connected clients
 | `Gateway Sim Card` | 5G Gateway    | Gateway Name | SIM card information
-| `Access Point`     | TMOBILE-xxxx  | SSID Name    | Detailed access point (wireless, or WiFi) settings
-| `Cell Status`      | Bands: b2 n41 | Bands in Use | Detailed cell tower and received signal data (diabled by default)
+| `Access Point`     | TMOBILE-xxxx  | SSID Name    | Detailed access point (wireless, or Wi-Fi) settings
+| `Cell Status`      | Bands: b2 n41 | Bands in Use | Detailed cell tower and received signal data (disabled by default)
 
 The `T-Mobile Cell Status` entity is disabled by default to prevent bloat of history, 
 as it is somewhat large and changes very frequently.
+
+
+### Select Entities
+Select Entities allow you to make changes to the gateway's settings by selecting from a list of choices.
+
+All entities begin with `T-Mobile`, which will be omitted from the "Friendly Name" here for brevity:
+
+| Friendly Name            | Example Choices | Description
+| -------------            | --------------- | -----------
+| `Wi-Fi 2.4GHz Channel`   | Auto, 1, 2, 3   | Sets the channel used for 2.4GHz Wi-Fi
+| `Wi-Fi 5.0GHz Channel`   | Auto, 36,40,... | Sets the channel used for 2.4GHz Wi-Fi
+| `Wi-Fi 2.4GHz Bandwidth` | Auto, 20MHz,... | Sets the channel used for 2.4GHz Wi-Fi
+| `Wi-Fi 5.0GHz Bandwidth` | Auto, 20MHz,... | Sets the channel used for 2.4GHz Wi-Fi
+
+Note: After changing any of these settings, the gateway will need some time to reconfigure to the new settings.
+It is best to allow the gateway to settle before changing another setting. The gateway has settled when the `state`
+of the select control matches the new value. 
+A [custom:mushroom-select-card](https://github.com/piitaya/lovelace-mushroom/blob/main/docs/cards/select.md) 
+is an example of a card that can show both the current state and the desired new state at the same time.
+
+
+### Switch Entities
+Switch Entities allow you to make changes to the gateway's settings by turning a feature on or off.
+
+All entities begin with `T-Mobile`, which will be omitted from the "Friendly Name" here for brevity:
+
+| Friendly Name    | Description
+| -------------    | -----------
+| `Wi-Fi 2.4GHz`   | Turn off the radio for 2.4GHz Wi-Fi
+| `Wi-Fi 5.0GHz`   | Turn off the radio for 5.0GHz Wi-Fi
+
+Note: Turning off either radio disables Wi-Fi on that frequency. Do not turn off the Wi-Fi on the frequency you are currently using.
+Only turn all Wi-Fi off if you have a wired connection to your gateway.
+
 
 ### Actions
 

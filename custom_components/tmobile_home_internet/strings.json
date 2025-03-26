@@ -64,6 +64,16 @@
           "description": "Transmision power level for 5.0GHz Wi-Fi: full or half power. Gateway will reset if this setting is changed, and may lose communications for a minute or more."
         }
       }
+    //},
+    //"set_wifi_ssid": {
+    //  "name": "Set Wi-Fi SSID",
+    //  "description": "Set Wi-Fi SSID on T-Mobile Home Internet Gateway.",
+    //  "fields": {
+    //    "ssid": {
+    //      "name": "SSID",
+    //      "description": "SSID for Wi-Fi."
+    //    }
+    //  }
     }
   }
 }

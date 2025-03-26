@@ -21,11 +21,11 @@ from homeassistant.helpers.entity_platform import async_get_platforms
 
 from pytmhi import TmiApiClient
 
-from .const import DOMAIN, FAST_POLL_SECONDS, SLOW_POLL_SECONDS
+from .const import GET_ACCESS_POINT_RETRIES, GET_ACCESS_POINT_RETRY_SECONDS, DOMAIN, FAST_POLL_SECONDS, SLOW_POLL_SECONDS
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.SWITCH]
+PLATFORMS: list[Platform] = [Platform.SELECT, Platform.SENSOR, Platform.SWITCH]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -138,8 +138,8 @@ class SlowCoordinator(DataUpdateCoordinator):
         try:
             # Note: asyncio.TimeoutError and aiohttp.ClientError are already
             # handled by the data update coordinator.
-            async with async_timeout.timeout(10):
-                _access_point = {"access_point":  await self._hass.async_add_executor_job(self._controller.get_ap_config) }
+            async with async_timeout.timeout(30):
+                _access_point = {"access_point":  await self._hass.async_add_executor_job(self._controller.get_ap_config, GET_ACCESS_POINT_RETRIES, GET_ACCESS_POINT_RETRY_SECONDS) }
 
             async with async_timeout.timeout(10):
                 config =  await self._hass.async_add_executor_job(self._controller.get_gateway_config)

@@ -86,12 +86,12 @@ Select Entities allow you to make changes to the gateway's settings by selecting
 
 All entities begin with `T-Mobile`, which will be omitted from the "Friendly Name" here for brevity:
 
-| Friendly Name            | Example Choices | Description
-| -------------            | --------------- | -----------
-| `Wi-Fi 2.4GHz Channel`   | Auto, 1, 2, 3   | Sets the channel used for 2.4GHz Wi-Fi
-| `Wi-Fi 5.0GHz Channel`   | Auto, 36,40,... | Sets the channel used for 2.4GHz Wi-Fi
-| `Wi-Fi 2.4GHz Bandwidth` | Auto, 20MHz,... | Sets the channel used for 2.4GHz Wi-Fi
-| `Wi-Fi 5.0GHz Bandwidth` | Auto, 20MHz,... | Sets the channel used for 2.4GHz Wi-Fi
+| Friendly Name            | Example Choices         | Description
+| -------------            | ---------------         | -----------
+| `Wi-Fi 2.4GHz Channel`   | Auto, 1, 2, 3           | Sets the channel used for 2.4GHz Wi-Fi
+| `Wi-Fi 5.0GHz Channel`   | Auto, 36,40,44,48...165 | Sets the channel used for 5.0GHz Wi-Fi
+| `Wi-Fi 2.4GHz Bandwidth` | Auto, 20MHz,40MHz       | Sets the bandwidth used for 2.4GHz Wi-Fi
+| `Wi-Fi 5.0GHz Bandwidth` | Auto, 20MHz,40HMz,80MHz | Sets the bandwidth used for 5.0GHz Wi-Fi
 
 Note: After changing any of these settings, the gateway will need some time to reconfigure to the new settings.
 It is best to allow the gateway to settle before changing another setting. The gateway has settled when the `state`

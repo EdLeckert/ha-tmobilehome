@@ -3,24 +3,37 @@ import logging
 from typing import Callable
 
 from homeassistant.components.sensor import (SensorDeviceClass, SensorEntity)
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, SupportsResponse
+from homeassistant.exceptions import ServiceValidationError
 from homeassistant.util import slugify
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC, DeviceEntryType, DeviceInfo
-from homeassistant.helpers import entity_platform, service
+from homeassistant.helpers import entity_platform
+from homeassistant.helpers.storage import Store
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
     DOMAIN,
+    SERVICE_GET_CLIENT_LIST,
     SERVICE_REBOOT_GATEWAY,
     SERVICE_ENABLE_24_WIFI,
     SERVICE_ENABLE_50_WIFI,
     SERVICE_SET_24_WIFI_POWER,
     SERVICE_SET_50_WIFI_POWER,
+    SERVICE_SET_CLIENT_HOSTNAME,
+    SERVICE_CLEAR_CLIENT_HOSTNAME,
+    SERVICE_LIST_CLIENT_HOSTNAMES,
+    SCHEMA_SERVICE_GET_CLIENT_LIST,
     SCHEMA_SERVICE_REBOOT_GATEWAY,
     SCHEMA_SERVICE_ENABLE_24_WIFI,
     SCHEMA_SERVICE_ENABLE_50_WIFI,
     SCHEMA_SERVICE_SET_24_WIFI_POWER,
     SCHEMA_SERVICE_SET_50_WIFI_POWER,
+    SCHEMA_SERVICE_SET_CLIENT_HOSTNAME,
+    SCHEMA_SERVICE_CLEAR_CLIENT_HOSTNAME,
+    SCHEMA_SERVICE_LIST_CLIENT_HOSTNAMES,
+    STORAGE_KEY,
+    STORAGE_VERSION,
+
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -72,6 +85,36 @@ async def async_setup_entry(
         "_set_50_wifi_power",
     )
 
+    # This will call Entity._get_client_list
+    platform.async_register_entity_service(
+        SERVICE_GET_CLIENT_LIST,
+        SCHEMA_SERVICE_GET_CLIENT_LIST,
+        "_get_client_list",
+        supports_response=SupportsResponse.ONLY,
+    )
+
+    # This will call Entity._set_display_hostname
+    platform.async_register_entity_service(
+        SERVICE_SET_CLIENT_HOSTNAME,
+        SCHEMA_SERVICE_SET_CLIENT_HOSTNAME,
+        "_set_client_hostname",
+    )
+
+    # This will call Entity._clear_display_hostname
+    platform.async_register_entity_service(
+        SERVICE_CLEAR_CLIENT_HOSTNAME,
+        SCHEMA_SERVICE_CLEAR_CLIENT_HOSTNAME,
+        "_clear_client_hostname",
+    )
+
+    # This will call Entity._list_client_hostnames
+    platform.async_register_entity_service(
+        SERVICE_LIST_CLIENT_HOSTNAMES,
+        SCHEMA_SERVICE_LIST_CLIENT_HOSTNAMES,
+        "_list_client_hostnames",
+        supports_response=SupportsResponse.ONLY,
+    )
+
 def _create_entities(hass: HomeAssistant, entry: dict):
     entities = []
     fast_coordinator = hass.data[DOMAIN][entry.entry_id]["fast_coordinator"]
@@ -98,7 +141,6 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     entities.append(Gateway5gBandwidthSensor(hass, entry, fast_coordinator))
     entities.append(Gateway5gECGISensor(hass, entry, fast_coordinator))
     entities.append(GatewayUptimeSensor(hass, entry, slow_coordinator))
-
     return entities
 
 
@@ -123,6 +165,7 @@ class GatewayDeviceSensor(GatewaySensor):
     def __init__(self, hass, entry, coordinator, controller):
         """Set up a new HA T-Mobile Home Internet gateway device sensor."""
         self._controller = controller
+        self._store = Store[dict[str, str]](hass, STORAGE_VERSION, STORAGE_KEY)
         super().__init__(hass, entry, coordinator)
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, coordinator.config_entry.entry_id)},
@@ -195,6 +238,68 @@ class GatewayDeviceSensor(GatewaySensor):
         access_point = self.coordinator.data["access_point"]
         access_point["2.4ghz"]["transmissionPower"] = ('50%' if power_level == "Half" else '100%')
         await self._hass.async_add_executor_job(self._controller.set_ap_config, access_point)
+
+    async def _set_client_hostname(self, mac_address: str, hostname: str) -> None:
+        """Set Client Hostname."""
+        edited_clients = await self._store.async_load() or []
+        new_client = { 'mac' : mac_address, 'name' : hostname }
+        found = False
+
+        # Update hostname if entry exists
+        for client in edited_clients:
+            if 'mac' in client and client['mac'].upper() == mac_address.upper():
+                client.update(new_client)
+                found = True
+
+        # Otherwise, add new entry to list
+        if not found:
+            edited_clients.append(new_client)
+
+        await self._store.async_save(edited_clients)
+
+    async def _clear_client_hostname(self, mac_address: str) -> None:
+        """Clear Client Hostname."""
+        if mac_address == "*":
+            # Remove all entries
+            return await self._store.async_remove()
+        else:
+            edited_clients = await self._store.async_load() or []
+
+            # Remove dict from list if it exists
+            edited_clients = [d for d in edited_clients if d.get('mac').upper() != mac_address.upper()]
+
+            await self._store.async_save(edited_clients)
+
+    async def _list_client_hostnames(self) -> None:
+        """List Client Hostnames."""
+        return await self._store.async_load() or []
+
+    async def _get_client_list(self) -> list[dict]:
+        """Get client list."""
+        clients = self.coordinator.data['clients']
+
+        # Add "interface" key to dicts
+        for client_24 in clients['2.4ghz']:
+            client_24.update({'interface' : '2.4GHz' })
+
+        for client_50 in clients['5.0ghz']:
+            client_50.update({'interface' : '5.0GHz' })
+
+        for client_eth in clients['ethernet']:
+            client_eth.update({'interface' : 'Wired' })
+
+        # Combine dicts into single dict for easier display in grid cards
+        combined_clients = { 'clients' : clients['2.4ghz'] + clients['5.0ghz'] + clients['ethernet'] }
+
+        # Update hostnames with local edits
+        edited_clients = await self._store.async_load() or []
+
+        for replacement in edited_clients:
+            for element in combined_clients['clients']:
+                if 'mac' in element and element['mac'].upper() == replacement['mac'].upper():
+                    element.update(replacement)
+
+        return combined_clients
 
 
 class GatewayAccessPointSensor(GatewaySensor):
@@ -858,3 +963,4 @@ class GatewayUptimeSensor(GatewaySensor):
         """Return the value of this sensor."""
         uptime = self.coordinator.data["time"]["upTime"]
         return 0 if uptime is None else round(uptime / 3600, 1)
+

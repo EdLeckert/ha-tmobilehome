@@ -10,7 +10,8 @@ The `ha-tmobilehome` implementation allows you to integrate your T-Mobile Home I
 - Provides detailed access point (wireless) settings.
 - Provides sim card information.
 - Allows changes to access point settings.
-- Allows rebooting of gateway.
+- Allows rebooting of the gateway.
+- Allows manual editing of missing or obscure hostnames in the integration.
 
 ## Disclaimer
 This is an unofficial integration of T-Mobile Home Internet for Home Assistant. The developer and the contributors are not in any way 
@@ -41,7 +42,7 @@ Aggregate entities provide the complete set of data available from the gateway.
 ### Simple Sensor Entities
 Simple entities can be used directly on dashboards in cards such as the `Entities` card.
 
-All entities begin with `T-Mobile`, which will be omitted from the "Friendly Name" here for brevity:
+All entities begin with `T-Mobile`, which will be omitted from the "Friendly Name" here for brevity.
 
 | Friendly Name       | Example State  | Description
 | -------------       | -------------  | -----------
@@ -67,7 +68,7 @@ Aggregate entities contain a group of related values as attributes. They can be 
 `Developer tools` `STATES` tab. To use values from these entities in cards on a dashboard, they must first be extracted into 
 a `Template Entity`. See below for examples.
 
-All entities begin with `T-Mobile`, which will be omitted from the "Friendly Name" here for brevity:
+All entities begin with `T-Mobile`, which will be omitted from the "Friendly Name" here for brevity.
 
 | Friendly Name      | Example State | State Source | Description
 | -------------      | ------------- | ------------ | -----------
@@ -84,7 +85,7 @@ as it is somewhat large and changes very frequently.
 ### Select Entities
 Select Entities allow you to make changes to the gateway's settings by selecting from a list of choices.
 
-All entities begin with `T-Mobile`, which will be omitted from the "Friendly Name" here for brevity:
+All entities begin with `T-Mobile`, which will be omitted from the "Friendly Name" here for brevity.
 
 | Friendly Name            | Example Choices         | Description
 | -------------            | ---------------         | -----------
@@ -103,7 +104,7 @@ is an example of a card that can show both the current state and the desired new
 ### Switch Entities
 Switch Entities allow you to make changes to the gateway's settings by turning a feature on or off.
 
-All entities begin with `T-Mobile`, which will be omitted from the "Friendly Name" here for brevity:
+All entities begin with `T-Mobile`, which will be omitted from the "Friendly Name" here for brevity.
 
 | Friendly Name    | Description
 | -------------    | -----------
@@ -116,7 +117,9 @@ Only turn all Wi-Fi off if you have a wired connection to your gateway.
 
 ### Actions
 
-Actions are available to control the gateway. They are:
+Actions are available to control the gateway and the display of gateway information.
+
+All actions begin with `T-Mobile Home Internet`, which will be omitted from the "Action Name" here for brevity.
 
 | Action Name                           | Description
 | -------------                         | -----------
@@ -125,6 +128,23 @@ Actions are available to control the gateway. They are:
 | `Set 5.0GHz Wi-Fi Transmission Power` | Set 5.0GHz Wi-Fi transmission power level on T-Mobile Home Internet Gateway
 | `Enable/disable 2.4GHz Wi-Fi`         | Enable/disable 2.4GHz Wi-Fi on T-Mobile Home Internet Gateway
 | `Enable/disable 5.0GHz Wi-Fi`         | Enable/disable 5.0GHz Wi-Fi on T-Mobile Home Internet Gateway
+| `Get Client List`                     | Returns a list of all clients known to the T-Mobile Home Internet Gateway
+| `Set Client Hostname`                 | Sets the hostname for a client locally in the integration
+| `Clear Client Hostname`               | Clears a previously set hostname for a client
+| `List Client Hostnames`               | Lists all manually set hostnames.
+
+`Get Client List` can be used to return the entire list of wired and wireless clients in a single list for easy display
+(the gateway splits clients into 2.4GHz, 5.0GHz, and Wired groups).
+
+Often the gateway will be unable to obtain a useful hostname from a client. `Set Client Hostname` can be used to manually
+save preferred hostnames to make viewing the client list more useful. `Get Client List` will automatically substitute the 
+alternate hostname.
+
+Note that these hostnames are only stored in the integration, and will not be passed back to the gateway or client device.
+
+`List Client Hostnames` can be used to show which clients have had an alternate hostname provided.
+
+`Clear Client Hostname` can be used to remove one or all alternate hostnames.
 
 ## Examples
 
@@ -141,6 +161,35 @@ template:
         state: '{{ state_attr("sensor.t_mobile_gateway","device")["softwareVersion"] }}'
 ```
 
+### Display a list of clients known to the gateway
+
+The gateway's client list can be conveniently displayed by using a [custom:flex-table-card](https://github.com/custom-cards/flex-table-card).
+
+This sample configuration uses the `Get Client List` action mentioned above to populate a table with client details:
+
+```yaml
+type: custom:flex-table-card
+title: T-Mobile Home Internet Clients
+action: tmobile_home_internet.get_client_list
+entities:
+  include: sensor.t_mobile_gateway
+sort_by: IP Address
+columns:
+  - name: Name
+    data: clients.name
+  - name: IP Address
+    data: clients.ipv4
+  - name: MAC Address
+    data: clients.mac
+  - name: Interface
+    data: clients.interface
+  - name: Connected
+    data: clients.connected
+    modify: "x ? 'Yes' : 'No'"
+  - name: Signal
+    data: clients.signal
+    modify: x || 'N/A'
+```
 
 ## Contribute
 Feel free to contribute by opening a PR or issue on this project.

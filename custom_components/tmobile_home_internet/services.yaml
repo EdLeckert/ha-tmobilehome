@@ -62,6 +62,47 @@ set_wifi50ghz_power:
             - Full
             - Half
 
+get_client_list:
+  target:
+    entity:
+      integration: tmobile_home_internet
+      device_class: gateway
+
+set_client_hostname:
+  target:
+    entity:
+      integration: tmobile_home_internet
+      device_class: gateway
+  fields:
+    mac_address:
+      required: true
+      example: 41:a4:df:7c:d1:c0
+      selector:
+        text:
+    hostname:
+      required: true
+      example: homeassistant
+      selector:
+        text:
+
+clear_client_hostname:
+  target:
+    entity:
+      integration: tmobile_home_internet
+      device_class: gateway
+  fields:
+    mac_address:
+      required: true
+      example: 41:a4:df:7c:d1:c0
+      selector:
+        text:
+
+list_client_hostnames:
+  target:
+    entity:
+      integration: tmobile_home_internet
+      device_class: gateway
+
 # set_wifi_ssid:
 #   target:
 #     entity:

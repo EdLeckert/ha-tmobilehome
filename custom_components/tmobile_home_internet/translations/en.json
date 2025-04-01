@@ -64,6 +64,38 @@
           "description": "Transmision power level for 5.0GHz Wi-Fi: full or half power. Gateway will reset if this setting is changed, and may lose communications for a minute or more."
         }
       }
+    },
+    "get_client_list": {
+      "name": "Get Client List",
+      "description": "Get client list on T-Mobile Home Internet Gateway."
+    },
+    "set_client_hostname": {
+      "name": "Set Client Hostname",
+      "description": "Manually set local display hostname for a client on T-Mobile Home Internet Gateway. Does not update the gateway or client device.",
+      "fields": {
+        "mac_address": {
+          "name": "MAC Address",
+          "description": "MAC Address of client to be changed."
+        },
+        "hostname": {
+          "name": "Hostname",
+          "description": "New Hostname to display with the MAC Address."
+        }
+      }
+    },
+    "clear_client_hostname": {
+      "name": "Clear Client Hostname",
+      "description": "Clear manually set local display hostname for a client on T-Mobile Home Internet Gateway. Does not update the gateway or client device.",
+      "fields": {
+        "mac_address": {
+          "name": "MAC Address",
+          "description": "MAC Address of client to be changed. An asterisk (*) clears all hostnames."
+        }
+      }
+    },
+    "list_client_hostnames": {
+      "name": "List Client Hostnames",
+      "description": "List manually set local display hostnames for clients on T-Mobile Home Internet Gateway."
     }
   }
 }

@@ -66,20 +66,21 @@ All entities begin with `T-Mobile`, which will be omitted from the "Friendly Nam
 ### Aggregate Sensor Entities
 Aggregate entities contain a group of related values as attributes. They can be viewed using the 
 `Developer tools` `STATES` tab. To use values from these entities in cards on a dashboard, they must first be extracted into 
-a `Template Entity`. See below for examples.
+a `Template Entity`. See `Examples` below.
+
+Identical values are available via Actions of a similar name. Actions have the advantage of not filling history unneccesarily. See `Actions` below.
 
 All entities begin with `T-Mobile`, which will be omitted from the "Friendly Name" here for brevity.
 
 | Friendly Name      | Example State | State Source | Description
 | -------------      | ------------- | ------------ | -----------
 | `Gateway`          | 5G Gateway    | Gateway Name | Detailed gateway device data
-| `Gateway Clients`  | 29            | Client Count | Detailed list of all connected clients
+| `Gateway Clients`  | 29            | Client Count | Detailed list of all connected clients. Disabled by default.
 | `Gateway Sim Card` | 5G Gateway    | Gateway Name | SIM card information
-| `Access Point`     | TMOBILE-xxxx  | SSID Name    | Detailed access point (wireless, or Wi-Fi) settings
-| `Cell Status`      | Bands: b2 n41 | Bands in Use | Detailed cell tower and received signal data (disabled by default)
+| `Access Point`     | TMOBILE-xxxx  | SSID Name    | Detailed access point (wireless, or Wi-Fi) settings. Disabled by default.
+| `Cell Status`      | Bands: b2 n41 | Bands in Use | Detailed cell tower and received signal data (disabled by default). Disabled by default.
 
-The `T-Mobile Cell Status` entity is disabled by default to prevent bloat of history, 
-as it is somewhat large and changes very frequently.
+The `T-Mobile Cell Status` entity is particularly likely to bloat of history, as it is somewhat large and changes very frequently.
 
 
 ### Select Entities
@@ -131,10 +132,15 @@ All actions begin with `T-Mobile Home Internet`, which will be omitted from the 
 | `Get Client List`                     | Returns a list of all clients known to the T-Mobile Home Internet Gateway
 | `Set Client Hostname`                 | Sets the hostname for a client locally in the integration
 | `Clear Client Hostname`               | Clears a previously set hostname for a client
-| `List Client Hostnames`               | Lists all manually set hostnames.
+| `List Client Hostnames`               | Lists all manually set hostnames
+| `Get Gateway`                         | Gets gateway device details
+| `Get Gateway Clients`                 | Gets gateway wired and wireless clients
+| `Get Gateway SIM Card`                | Gets SIM card details
+| `Get Access Point`                    | Get access point (wireless) settings
+| `Get Cell Status`                     | Get cell connection status
 
 `Get Client List` can be used to return the entire list of wired and wireless clients in a single list for easy display
-(the gateway splits clients into 2.4GHz, 5.0GHz, and Wired groups).
+(the gateway splits clients into 2.4GHz, 5.0GHz, and Wired groups, as returned by `Get Gateway Clients`).
 
 Often the gateway will be unable to obtain a useful hostname from a client. `Set Client Hostname` can be used to manually
 save preferred hostnames to make viewing the client list more useful. `Get Client List` will automatically substitute the 
@@ -145,6 +151,12 @@ Note that these hostnames are only stored in the integration, and will not be pa
 `List Client Hostnames` can be used to show which clients have had an alternate hostname provided.
 
 `Clear Client Hostname` can be used to remove one or all alternate hostnames.
+
+`Get Gateway`, `Get Gateway Clients`, `Get Gateway SIM Card`, `Get Access Point`, and `Get Cell Status` return data that
+is identical to that provided by the aggregate sensor entities above, but without filling history.
+
+Actions are useful for populating a table (see table example below), while aggregate sensor entities are useful for creating template
+sensors (see template example below).
 
 ## Examples
 
@@ -161,7 +173,7 @@ template:
         state: '{{ state_attr("sensor.t_mobile_gateway","device")["softwareVersion"] }}'
 ```
 
-### Display a list of clients known to the gateway
+### Display a list of clients known to the gateway in a table
 
 The gateway's client list can be conveniently displayed by using a [custom:flex-table-card](https://github.com/custom-cards/flex-table-card).
 

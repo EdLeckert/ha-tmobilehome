@@ -80,7 +80,7 @@ All entities begin with `T-Mobile`, which will be omitted from the "Friendly Nam
 | `Access Point`     | TMOBILE-xxxx  | SSID Name    | Detailed access point (wireless, or Wi-Fi) settings. Disabled by default.
 | `Cell Status`      | Bands: b2 n41 | Bands in Use | Detailed cell tower and received signal data (disabled by default). Disabled by default.
 
-The `T-Mobile Cell Status` entity is particularly likely to bloat of history, as it is somewhat large and changes very frequently.
+The `T-Mobile Cell Status` entity is particularly likely to bloat history, as it is somewhat large and changes very frequently.
 
 
 ### Select Entities
@@ -95,9 +95,10 @@ All entities begin with `T-Mobile`, which will be omitted from the "Friendly Nam
 | `Wi-Fi 2.4GHz Bandwidth` | Auto, 20MHz,40MHz       | Sets the bandwidth used for 2.4GHz Wi-Fi
 | `Wi-Fi 5.0GHz Bandwidth` | Auto, 20MHz,40HMz,80MHz | Sets the bandwidth used for 5.0GHz Wi-Fi
 
-Note: After changing any of these settings, the gateway will need some time to reconfigure to the new settings.
+**Note: After changing any of these settings, the gateway will need some time to reconfigure to the new settings.
 It is best to allow the gateway to settle before changing another setting. The gateway has settled when the `state`
-of the select control matches the new value. 
+of the select control matches the new value.**
+
 A [custom:mushroom-select-card](https://github.com/piitaya/lovelace-mushroom/blob/main/docs/cards/select.md) 
 is an example of a card that can show both the current state and the desired new state at the same time.
 
@@ -109,16 +110,16 @@ All entities begin with `T-Mobile`, which will be omitted from the "Friendly Nam
 
 | Friendly Name    | Description
 | -------------    | -----------
-| `Wi-Fi 2.4GHz`   | Turn off the radio for 2.4GHz Wi-Fi
-| `Wi-Fi 5.0GHz`   | Turn off the radio for 5.0GHz Wi-Fi
+| `Wi-Fi 2.4GHz`   | Turn off the radio for 2.4GHz Wi-Fi. Disabled by default.
+| `Wi-Fi 5.0GHz`   | Turn off the radio for 5.0GHz Wi-Fi. Disabled by default.
 
-Note: Turning off either radio disables Wi-Fi on that frequency. Do not turn off the Wi-Fi on the frequency you are currently using.
-Only turn all Wi-Fi off if you have a wired connection to your gateway.
+**Note: Turning off either radio disables Wi-Fi on that frequency. Do not turn off the Wi-Fi on the frequency you are currently using.
+Only turn all Wi-Fi off if you have a wired connection to your gateway.**
 
 
 ### Actions
 
-Actions are available to control the gateway and the display of gateway information.
+Actions are available to control the gateway and to display gateway information.
 
 All actions begin with `T-Mobile Home Internet`, which will be omitted from the "Action Name" here for brevity.
 

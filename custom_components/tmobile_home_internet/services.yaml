@@ -103,6 +103,37 @@ list_client_hostnames:
       integration: tmobile_home_internet
       device_class: gateway
 
+get_access_point:
+  target:
+    entity:
+      integration: tmobile_home_internet
+      device_class: gateway
+
+get_gateway:
+  target:
+    entity:
+      integration: tmobile_home_internet
+      device_class: gateway
+
+get_gateway_clients:
+  target:
+    entity:
+      integration: tmobile_home_internet
+      device_class: gateway
+
+get_gateway_sim_card:
+  target:
+    entity:
+      integration: tmobile_home_internet
+      device_class: gateway
+
+get_cell_status:
+  target:
+    entity:
+      integration: tmobile_home_internet
+      device_class: gateway
+
+
 # set_wifi_ssid:
 #   target:
 #     entity:

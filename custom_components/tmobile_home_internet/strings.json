@@ -95,7 +95,27 @@
     },
     "list_client_hostnames": {
       "name": "List Client Hostnames",
-      "description": "List manually set local display hostnames for clients on T-Mobile Home Internet Gateway.",
+      "description": "List manually set local display hostnames for clients on T-Mobile Home Internet Gateway."
+    },
+    "get_access_point": {
+      "name": "Get Access Point",
+      "description": "Get access point (wireless) settings. Same as sensor.t_mobile_access_point."
+    },
+    "get_gateway": {
+      "name": "Get Gateway",
+      "description": "Get gateway device details. Same as sensor.t_mobile_gateway."
+    },
+    "get_gateway_clients": {
+      "name": "Get Gateway Clients",
+      "description": "Get gateway wired and wireless clients. Same as sensor.t_mobile_gateway_clients."
+    },
+    "get_gateway_sim_card": {
+      "name": "Get Gateway SIM Card",
+      "description": "Get SIM card details. Same as sensor.t_mobile_gateway_sim_card."
+    },
+    "get_cell_status": {
+      "name": "Get Cell Status",
+      "description": "Get cell connection status. Same as sensor.t_mobile_cell_status."
     }
   }
 }

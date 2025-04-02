@@ -22,6 +22,11 @@ from .const import (
     SERVICE_SET_CLIENT_HOSTNAME,
     SERVICE_CLEAR_CLIENT_HOSTNAME,
     SERVICE_LIST_CLIENT_HOSTNAMES,
+    SERVICE_GET_ACCESS_POINT,
+    SERVICE_GET_GATEWAY,
+    SERVICE_GET_GATEWAY_CLIENTS,
+    SERVICE_GET_GATEWAY_SIM_CARD,
+    SERVICE_GET_CELL_STATUS,
     SCHEMA_SERVICE_GET_CLIENT_LIST,
     SCHEMA_SERVICE_REBOOT_GATEWAY,
     SCHEMA_SERVICE_ENABLE_24_WIFI,
@@ -31,6 +36,11 @@ from .const import (
     SCHEMA_SERVICE_SET_CLIENT_HOSTNAME,
     SCHEMA_SERVICE_CLEAR_CLIENT_HOSTNAME,
     SCHEMA_SERVICE_LIST_CLIENT_HOSTNAMES,
+    SCHEMA_SERVICE_GET_ACCESS_POINT,
+    SCHEMA_SERVICE_GET_GATEWAY,
+    SCHEMA_SERVICE_GET_GATEWAY_CLIENTS,
+    SCHEMA_SERVICE_GET_GATEWAY_SIM_CARD,
+    SCHEMA_SERVICE_GET_CELL_STATUS,
     STORAGE_KEY,
     STORAGE_VERSION,
 
@@ -115,13 +125,53 @@ async def async_setup_entry(
         supports_response=SupportsResponse.ONLY,
     )
 
+    # This will call Entity._list_client_hostnames
+    platform.async_register_entity_service(
+        SERVICE_GET_ACCESS_POINT,
+        SCHEMA_SERVICE_GET_ACCESS_POINT,
+        "_get_access_point",
+        supports_response=SupportsResponse.ONLY,
+    )
+
+    # This will call Entity._list_client_hostnames
+    platform.async_register_entity_service(
+        SERVICE_GET_GATEWAY,
+        SCHEMA_SERVICE_GET_GATEWAY,
+        "_get_gateway",
+        supports_response=SupportsResponse.ONLY,
+    )
+
+    # This will call Entity._list_client_hostnames
+    platform.async_register_entity_service(
+        SERVICE_GET_GATEWAY_CLIENTS,
+        SCHEMA_SERVICE_GET_GATEWAY_CLIENTS,
+        "_get_gateway_clients",
+        supports_response=SupportsResponse.ONLY,
+    )
+
+    # This will call Entity._list_client_hostnames
+    platform.async_register_entity_service(
+        SERVICE_GET_GATEWAY_SIM_CARD,
+        SCHEMA_SERVICE_GET_GATEWAY_SIM_CARD,
+        "_get_gateway_sim_card",
+        supports_response=SupportsResponse.ONLY,
+    )
+
+    # This will call Entity._list_client_hostnames
+    platform.async_register_entity_service(
+        SERVICE_GET_CELL_STATUS,
+        SCHEMA_SERVICE_GET_CELL_STATUS,
+        "_get_cell_status",
+        supports_response=SupportsResponse.ONLY,
+    )
+
 def _create_entities(hass: HomeAssistant, entry: dict):
     entities = []
     fast_coordinator = hass.data[DOMAIN][entry.entry_id]["fast_coordinator"]
     slow_coordinator = hass.data[DOMAIN][entry.entry_id]["slow_coordinator"]
     controller = hass.data[DOMAIN][entry.entry_id]["controller"]
 
-    entities.append(GatewayDeviceSensor(hass, entry, slow_coordinator, controller))
+    entities.append(GatewayDeviceSensor(hass, entry, slow_coordinator, fast_coordinator, controller))
     entities.append(GatewayAccessPointSensor(hass, entry, slow_coordinator))
     entities.append(GatewayClientsSensor(hass, entry, slow_coordinator))
     entities.append(GatewayCellSensor(hass, entry, fast_coordinator))
@@ -162,21 +212,22 @@ class GatewaySensor(CoordinatorEntity, SensorEntity):
 class GatewayDeviceSensor(GatewaySensor):
     """Represent a sensor for the gateway."""
 
-    def __init__(self, hass, entry, coordinator, controller):
+    def __init__(self, hass, entry, slow_coordinator, fast_coordinator, controller):
         """Set up a new HA T-Mobile Home Internet gateway device sensor."""
+        self._fast_coordinator = fast_coordinator
         self._controller = controller
         self._store = Store[dict[str, str]](hass, STORAGE_VERSION, STORAGE_KEY)
-        super().__init__(hass, entry, coordinator)
+        super().__init__(hass, entry, slow_coordinator)
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, coordinator.config_entry.entry_id)},
+            identifiers={(DOMAIN, slow_coordinator.config_entry.entry_id)},
             entry_type=DeviceEntryType.SERVICE,
-            connections={(CONNECTION_NETWORK_MAC, coordinator._gateway["device"]["macId"])},
-            serial_number=coordinator._gateway["device"]["serial"],
-            manufacturer=coordinator._gateway["device"]["manufacturer"],
-            model=coordinator._gateway["device"]["model"],
-            name=coordinator._gateway["device"]["name"],
-            sw_version=coordinator._gateway["device"]["softwareVersion"],
-            hw_version=coordinator._gateway["device"]["hardwareVersion"],
+            connections={(CONNECTION_NETWORK_MAC, slow_coordinator._gateway["device"]["macId"])},
+            serial_number=slow_coordinator._gateway["device"]["serial"],
+            manufacturer=slow_coordinator._gateway["device"]["manufacturer"],
+            model=slow_coordinator._gateway["device"]["model"],
+            name=slow_coordinator._gateway["device"]["name"],
+            sw_version=slow_coordinator._gateway["device"]["softwareVersion"],
+            hw_version=slow_coordinator._gateway["device"]["hardwareVersion"],
         )
 
     @property
@@ -301,6 +352,42 @@ class GatewayDeviceSensor(GatewaySensor):
 
         return combined_clients
 
+    async def _get_access_point(self) -> None:
+        """Get Access Point."""
+        attributes = { "access_point": "None" }
+        if self.coordinator.data is not None:
+            attributes = self.coordinator.data["access_point"]
+        return attributes
+
+    async def _get_gateway(self) -> None:
+        """Get Gateway."""
+        attributes = { "device": "None" }
+        if self.coordinator.data is not None:
+            attributes = self.coordinator._gateway
+        return attributes
+
+
+    async def _get_gateway_clients(self) -> None:
+        """Get Gateway Clients."""
+        attributes = { "clients": "None" }
+        if self.coordinator.data is not None:
+            attributes = self.coordinator.data["clients"]
+        return attributes
+
+    async def _get_gateway_sim_card(self) -> None:
+        """Get Gateway SIM Card."""
+        attributes = { "sim": "None" }
+        if self.coordinator.data is not None:
+            attributes = self.coordinator._sim
+        return attributes
+
+    async def _get_cell_status(self) -> None:
+        """Get Cell Status."""
+        attributes = { "cell": "None" }
+        if self.coordinator.data is not None:
+            attributes = self._fast_coordinator.data["cell"]
+        return attributes
+
 
 class GatewayAccessPointSensor(GatewaySensor):
     """Represent a sensor for the gateway."""
@@ -323,6 +410,11 @@ class GatewayAccessPointSensor(GatewaySensor):
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
         return slugify(f"{self._entity_type}_tmobile_home_internet_access_point")
+
+    @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Set entity disabled by default."""
+        return False
 
     @property
     def extra_state_attributes(self):
@@ -353,6 +445,11 @@ class GatewayClientsSensor(GatewaySensor):
     def name(self) -> str:
         """Return the name of this sensor."""
         return f"T-Mobile Gateway Clients"
+
+    @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Set entity disabled by default."""
+        return False
 
     @property
     def unique_id(self) -> str:

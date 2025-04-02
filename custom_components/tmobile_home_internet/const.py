@@ -44,6 +44,16 @@ SCHEMA_SERVICE_CLEAR_CLIENT_HOSTNAME: Final = {
 
 SCHEMA_SERVICE_LIST_CLIENT_HOSTNAMES: Final = {}
 
+SCHEMA_SERVICE_GET_ACCESS_POINT: Final = {}
+
+SCHEMA_SERVICE_GET_GATEWAY: Final = {}
+
+SCHEMA_SERVICE_GET_GATEWAY_CLIENTS: Final = {}
+
+SCHEMA_SERVICE_GET_GATEWAY_SIM_CARD: Final = {}
+
+SCHEMA_SERVICE_GET_CELL_STATUS: Final = {}
+
 SERVICE_REBOOT_GATEWAY: Final = "reboot_gateway"
 SERVICE_ENABLE_24_WIFI: Final = "wifi24ghz_enable"
 SERVICE_ENABLE_50_WIFI: Final = "wifi50ghz_enable"
@@ -53,4 +63,9 @@ SERVICE_GET_CLIENT_LIST: Final = "get_client_list"
 SERVICE_SET_CLIENT_HOSTNAME: Final = "set_client_hostname"
 SERVICE_CLEAR_CLIENT_HOSTNAME: Final = "clear_client_hostname"
 SERVICE_LIST_CLIENT_HOSTNAMES: Final = "list_client_hostnames"
+SERVICE_GET_ACCESS_POINT: Final = "get_access_point"
+SERVICE_GET_GATEWAY: Final = "get_gateway"
+SERVICE_GET_GATEWAY_CLIENTS: Final = "get_gateway_clients"
+SERVICE_GET_GATEWAY_SIM_CARD: Final = "get_gateway_sim_card"
+SERVICE_GET_CELL_STATUS: Final = "get_cell_status"
 

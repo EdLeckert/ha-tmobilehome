@@ -10,6 +10,9 @@ GET_ACCESS_POINT_RETRY_SECONDS: Final = 4
 FAST_POLL_SECONDS: Final = 10
 SLOW_POLL_SECONDS: Final = 60
 
+SSID_NAME_PATTERN: Final = r'^[A-Za-z0-9!"#%' + r"',-\/:=@^_~]{1,28}$"
+SSID_PASSWORD_PATTERN: Final = r'^[A-Za-z0-9!"#$%&' + r"'()*+,\-\.\/;<=>?@\[\]^_`|}{~]{8,63}$"
+
 STORAGE_VERSION: Final = 1
 STORAGE_KEY: Final = DOMAIN
 

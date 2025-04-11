@@ -46,6 +46,8 @@ from .const import (
 
 )
 
+from .utils import get_ssid_edit_index
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -191,6 +193,9 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     entities.append(Gateway5gBandwidthSensor(hass, entry, fast_coordinator))
     entities.append(Gateway5gECGISensor(hass, entry, fast_coordinator))
     entities.append(GatewayUptimeSensor(hass, entry, slow_coordinator))
+    entities.append(GatewaySSIDEditIndexSensor(hass, entry, slow_coordinator))
+    entities.append(GatewaySSIDCountSensor(hass, entry, slow_coordinator))
+
     return entities
 
 
@@ -1060,4 +1065,63 @@ class GatewayUptimeSensor(GatewaySensor):
         """Return the value of this sensor."""
         uptime = self.coordinator.data["time"]["upTime"]
         return 0 if uptime is None else round(uptime / 3600, 1)
+
+class GatewaySSIDEditIndexSensor(GatewaySensor):
+    """Represent a sensor for the gateway SSID Edit Index."""
+
+    def __init__(self, hass, entry, coordinator):
+        """Set up a new HA T-Mobile Home Internet gateway SSID Edit Index sensor."""
+        super().__init__(hass, entry, coordinator)
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        return "mdi:counter"
+
+    @property
+    def name(self) -> str:
+        """Return the name of this sensor."""
+        return f"T-Mobile Gateway SSID Edit Index"
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return slugify(f"{self._entity_type}_tmobile_home_internet_gateway_ssid_edit_index")
+
+    @property
+    def native_value(self) -> int:
+        """Return the value of this sensor."""
+        return get_ssid_edit_index(self._hass)
+
+class GatewaySSIDCountSensor(GatewaySensor):
+    """Represent a sensor for the gateway SSID Count."""
+
+    def __init__(self, hass, entry, coordinator):
+        """Set up a new HA T-Mobile Home Internet gateway SSID Count sensor."""
+        super().__init__(hass, entry, coordinator)
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        return "mdi:counter"
+
+    @property
+    def unit_of_measurement(self) -> str:
+        """Return the units of measurement."""
+        return "SSID"
+
+    @property
+    def name(self) -> str:
+        """Return the name of this sensor."""
+        return f"T-Mobile Gateway SSID Count"
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return slugify(f"{self._entity_type}_tmobile_home_internet_gateway_ssid_count")
+
+    @property
+    def native_value(self) -> int:
+        """Return the value of this sensor."""
+        return len(self.coordinator.data["access_point"]["ssids"])
 

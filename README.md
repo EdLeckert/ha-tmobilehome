@@ -30,17 +30,8 @@ affiliated with T‑Mobile USA, Inc. or Deutsche Telekom AG.
 
 ## Usage
 
-### Sensor Entities
-Two types of sensor entities are provided:
-1. Simple entities provide a single piece of data.
-2. Aggregate entities provide one or more dict objects as attributes.
-
-Simple entities provide an easy way to display data that is most commonly viewed. 
-
-Aggregate entities provide the complete set of data available from the gateway.
-
 ### Simple Sensor Entities
-Simple entities can be used directly on dashboards in cards such as the `Entities` card.
+`Simple Sensor Entities` can be used directly on dashboards in cards such as the `Entities` card.
 
 All entities begin with `T-Mobile`, which will be omitted from the "Friendly Name" here for brevity.
 
@@ -64,7 +55,7 @@ All entities begin with `T-Mobile`, which will be omitted from the "Friendly Nam
 
 
 ### Aggregate Sensor Entities
-Aggregate entities contain a group of related values as attributes. They can be viewed using the 
+`Aggregate Sensor Entities` contain a group of related values as attributes. They can be viewed using the 
 `Developer tools` `STATES` tab. To use values from these entities in cards on a dashboard, they must first be extracted into 
 a `Template Entity`. See `Examples` below.
 
@@ -84,7 +75,7 @@ The `T-Mobile Cell Status` entity is particularly likely to bloat history, as it
 
 
 ### Select Entities
-Select Entities allow you to make changes to the gateway's settings by selecting from a list of choices.
+`Select Entities` allow you to make changes to the gateway's settings by selecting from a list of choices.
 
 All entities begin with `T-Mobile`, which will be omitted from the "Friendly Name" here for brevity.
 
@@ -104,7 +95,7 @@ is an example of a card that can show both the current state and the desired new
 
 
 ### Switch Entities
-Switch Entities allow you to make changes to the gateway's settings by turning a feature on or off.
+`Switch Entities` allow you to make changes to the gateway's settings by turning a feature on or off.
 
 All entities begin with `T-Mobile`, which will be omitted from the "Friendly Name" here for brevity.
 
@@ -117,9 +108,40 @@ All entities begin with `T-Mobile`, which will be omitted from the "Friendly Nam
 Only turn all Wi-Fi off if you have a wired connection to your gateway.**
 
 
+### Editing Entities
+Each time settings in the gateway are changed, the gateway takes some time to process the change and become stable again.
+`Editing Entities` are special entities that allow you to make changes to several related gateway settings at the same time by presenting
+the data in a form that is saved in a single action. This improves the user experience, since you no longer have to wait between changes 
+if editing several fields at once.
+
+By themselves these entites do not affect the gateway's settings. Only when the `Save` button is pressed will these changes be applied to the gateway.
+
+The following entities are used for adding, deleting, and editing SSIDs within the gateway. Up to four SSIDs may be created.
+
+All entities begin with `T-Mobile`, which will be omitted from the "Friendly Name" here for brevity.
+
+
+| Friendly Name                  | Type   | Description
+| -------------                  | ----   | -----------
+| `Edit SSIDs`                   | Select | Select an SSID to edit. The next seven controls will be populated with that SSID's settings.
+| `Edit SSID Name`               | Text   | Edit the SSID name.
+| `Edit SSID Password`           | Text   | Edit the SSID password.
+| `Edit SSID Encryption Version` | Select | Change the Encryption Version ("WPA2/WPA3" or "WPA2").
+| `Edit SSID Hidden`             | Switch | Broadcast or hide the SSID.
+| `Edit SSID Guest`              | Switch | Set SSID to Guest mode.
+| `Edit SSID 2.4GHz`             | Switch | Turn on or off 2.4GHz mode for the SSID.
+| `Edit SSID 5.0GHz`             | Switch | Turn on or off 5.0GHz mode for the SSID.
+| `Edit SSID Save`               | Button | Save all pending changes to the gateway.
+| `Edit SSID Cancel`             | Button | Cancel all pending changes and display current gateway settings for the SSID.
+| `Edit SSIDs Add`               | Button | Add a new SSID, up to four. A suggested name and password are provided.
+| `Edit SSIDs Delete`            | Button | Delete the selected SSID. The first SSID cannot be deleted.
+
+These entities can be used individually, as long as the `T-Mobile Edit SSID Save` is "pressed" to apply the change. However, they
+are best used together in a form. See `Examples` below.
+
 ### Actions
 
-Actions are available to control the gateway and to display gateway information.
+`Actions` are available to control the gateway and to display gateway information.
 
 All actions begin with `T-Mobile Home Internet`, which will be omitted from the "Action Name" here for brevity.
 
@@ -203,6 +225,287 @@ columns:
     data: clients.signal
     modify: x || 'N/A'
 ```
+
+### Display a form to edit SSIDs
+
+The `Editing Entities` described above can be displayed in a form to allow adding, deleting, and editing of SSID settings.
+The following is a Card definition that uses no custom cards.
+
+To use the definition, add a new `Vertical stack` card to a dashboard view and select `SHOW CODE EDITOR`. Paste the definition below over
+the existing text and `SAVE`. Your card should look something like this once you select an SSID:
+
+<img src="/img/SSID Form.png" alt="SSID Editing Form Example" width="25%">
+
+```yaml
+type: vertical-stack
+cards:
+  - type: vertical-stack
+    cards:
+      - type: entities
+        entities:
+          - entity: select.t_mobile_edit_ssids
+            name: Select SSID to Edit
+        show_header_toggle: false
+        title: SSIDs
+      - type: horizontal-stack
+        cards:
+          - type: tile
+            features_position: bottom
+            vertical: false
+            entity: button.t_mobile_edit_ssids_add
+            hide_state: true
+            name: Add
+            color: black
+            tap_action:
+              action: perform-action
+              confirmation:
+                text: Add New SSID?
+              perform_action: button.press
+              target: {}
+              data:
+                entity_id:
+                  - button.t_mobile_edit_ssids_add
+            icon_tap_action:
+              action: none
+        visibility:
+          - condition: numeric_state
+            entity: sensor.t_mobile_gateway_ssid_count
+            below: 4
+          - condition: state
+            entity: switch.t_mobile_edit_ssid_edits_saving
+            state: "off"
+      - type: horizontal-stack
+        cards:
+          - type: tile
+            features_position: bottom
+            vertical: false
+            entity: button.t_mobile_edit_ssids_add
+            hide_state: true
+            name: Add
+            color: disabled
+            tap_action:
+              action: none
+            icon_tap_action:
+              action: none
+        visibility:
+          - condition: numeric_state
+            entity: sensor.t_mobile_gateway_ssid_count
+            above: 3
+          - condition: state
+            entity: switch.t_mobile_edit_ssid_edits_saving
+            state: "off"
+  - type: vertical-stack
+    cards:
+      - type: markdown
+        content: >
+          <ha-alert alert-type="error">Spaces and other special characters are
+          not allowed in SSID names.</ha-alert>
+
+
+          Valid characters are: 
+
+
+          A-Z, a-z, 0-9, ! " # % ' , - / : = @ ^ _ ~
+    visibility:
+      - condition: state
+        entity: switch.t_mobile_edit_ssid_edits_name_valid
+        state: "off"
+  - type: vertical-stack
+    cards:
+      - type: markdown
+        content: >
+          <ha-alert alert-type="error">Spaces and other special characters are
+          not allowed in SSID passwords.</ha-alert>
+
+          Valid characters are:
+
+
+          A-Z, a-z, 0-9, ! " # $ % & ' ( ) * + , - . / ; < = > ? @ [ ] ^ _ ` | }
+          { ~
+    visibility:
+      - condition: state
+        entity: switch.t_mobile_edit_ssid_edits_password_valid
+        state: "off"
+  - type: vertical-stack
+    cards:
+      - type: entities
+        entities:
+          - entity: text.t_mobile_edit_ssid_name
+            name: SSID
+          - entity: text.t_mobile_edit_ssid_password
+            name: Password
+          - entity: select.t_mobile_edit_ssid_encryption_version
+            name: Encryption
+          - entity: switch.t_mobile_edit_ssid_hidden
+            name: Hidden
+          - entity: switch.t_mobile_edit_ssid_guest
+            name: Guest
+          - entity: switch.t_mobile_edit_ssid_2_4ghz
+            name: 2.4GHz
+          - entity: switch.t_mobile_edit_ssid_5_0ghz
+            name: 5.0GHz
+        show_header_toggle: false
+        title: Edit SSID
+      - type: horizontal-stack
+        cards:
+          - type: horizontal-stack
+            cards:
+              - type: tile
+                features_position: bottom
+                vertical: false
+                color: green
+                tap_action:
+                  action: toggle
+                icon_tap_action:
+                  action: none
+                name: Save
+                entity: button.t_mobile_edit_ssid_save
+                hide_state: true
+            visibility:
+              - condition: state
+                entity: switch.t_mobile_edit_ssid_edits_pending
+                state: "on"
+              - condition: state
+                entity: switch.t_mobile_edit_ssid_edits_name_valid
+                state: "on"
+              - condition: state
+                entity: switch.t_mobile_edit_ssid_edits_password_valid
+                state: "on"
+              - condition: state
+                entity: switch.t_mobile_edit_ssid_edits_saving
+                state: "off"
+          - type: horizontal-stack
+            cards:
+              - type: tile
+                features_position: bottom
+                vertical: false
+                color: disabled
+                tap_action:
+                  action: none
+                icon_tap_action:
+                  action: none
+                name: Save
+                entity: button.t_mobile_edit_ssid_save
+                hide_state: true
+            visibility:
+              - condition: or
+                conditions:
+                  - condition: state
+                    entity: switch.t_mobile_edit_ssid_edits_pending
+                    state: "off"
+                  - condition: state
+                    entity: switch.t_mobile_edit_ssid_edits_name_valid
+                    state: "off"
+                  - condition: state
+                    entity: switch.t_mobile_edit_ssid_edits_password_valid
+                    state: "off"
+              - condition: state
+                entity: switch.t_mobile_edit_ssid_edits_saving
+                state: "off"
+          - type: horizontal-stack
+            cards:
+              - type: tile
+                features_position: bottom
+                vertical: false
+                entity: button.t_mobile_edit_ssid_cancel
+                hide_state: true
+                name: Cancel
+                color: red
+                tap_action:
+                  action: toggle
+                icon_tap_action:
+                  action: none
+            visibility:
+              - condition: state
+                entity: switch.t_mobile_edit_ssid_edits_pending
+                state: "on"
+              - condition: state
+                entity: switch.t_mobile_edit_ssid_edits_saving
+                state: "off"
+          - type: horizontal-stack
+            cards:
+              - type: tile
+                features_position: bottom
+                vertical: false
+                entity: button.t_mobile_edit_ssid_cancel
+                hide_state: true
+                name: Cancel
+                color: disabled
+                tap_action:
+                  action: none
+                icon_tap_action:
+                  action: none
+            visibility:
+              - condition: state
+                entity: switch.t_mobile_edit_ssid_edits_pending
+                state: "off"
+              - condition: state
+                entity: switch.t_mobile_edit_ssid_edits_saving
+                state: "off"
+      - type: horizontal-stack
+        cards:
+          - type: tile
+            features_position: bottom
+            vertical: false
+            entity: button.t_mobile_edit_ssids_delete
+            hide_state: true
+            name: Delete
+            color: black
+            tap_action:
+              action: perform-action
+              confirmation:
+                text: Delete Selected SSID?
+              perform_action: button.press
+              target: {}
+              data:
+                entity_id:
+                  - button.t_mobile_edit_ssids_delete
+            icon_tap_action:
+              action: none
+        visibility:
+          - condition: numeric_state
+            entity: sensor.t_mobile_gateway_ssid_edit_index
+            above: 0
+          - condition: state
+            entity: switch.t_mobile_edit_ssid_edits_saving
+            state: "off"
+      - type: horizontal-stack
+        cards:
+          - type: tile
+            features_position: bottom
+            vertical: false
+            entity: button.t_mobile_edit_ssids_delete
+            hide_state: true
+            name: Delete
+            color: disabled
+            tap_action:
+              action: none
+            icon_tap_action:
+              action: none
+        visibility:
+          - condition: numeric_state
+            entity: sensor.t_mobile_gateway_ssid_edit_index
+            below: 1
+          - condition: state
+            entity: switch.t_mobile_edit_ssid_edits_saving
+            state: "off"
+    visibility:
+      - condition: state
+        entity: select.t_mobile_edit_ssids
+        state_not: unknown
+      - condition: state
+        entity: switch.t_mobile_edit_ssid_edits_saving
+        state: "off"
+  - type: markdown
+    content: >
+      <ha-icon icon="mdi:content-save"></ha-icon> __Saving changes...please
+      wait.__
+    visibility:
+      - condition: state
+        entity: switch.t_mobile_edit_ssid_edits_saving
+        state: "on"
+```
+
 
 ## Contribute
 Feel free to contribute by opening a PR or issue on this project.

@@ -137,6 +137,16 @@ class GatewayEditSSIDPasswordText(GatewayText):
         return SSID_PASSWORD_PATTERN
 
     @property
+    def native_min(self) -> int:
+        """Return the value of this text."""
+        return 8
+
+    @property
+    def native_max(self) -> int:
+        """Return the value of this text."""
+        return 63
+
+    @property
     def native_value(self) -> int:
         """Return the value of this text."""
         return self._attr_state

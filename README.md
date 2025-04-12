@@ -136,8 +136,12 @@ All entities begin with `T-Mobile`, which will be omitted from the "Friendly Nam
 | `Edit SSIDs Add`               | Button | Add a new SSID, up to four. A suggested name and password are provided.
 | `Edit SSIDs Delete`            | Button | Delete the selected SSID. The first SSID cannot be deleted.
 
-These entities can be used individually, as long as the `T-Mobile Edit SSID Save` is "pressed" to apply the change. However, they
-are best used together in a form. See `Examples` below.
+These entities can be used individually, as long as an SSID is selected using `T-Mobile Edit SSIDs` and the `T-Mobile Edit SSID Save` button 
+is then "pressed" to apply any changes. However, they are best used together in a form. See `Examples` below.
+
+**Note: `T-Mobile Edit SSID Password` will display each SSID's password in free text for anyone using your Home Assistant instance to see. 
+If this is an issue in your environment, go to `Settings\Devices & services\Entities` tab, find the entity, and edit it to clear the `Enabled` 
+setting.**
 
 ### Actions
 
@@ -234,7 +238,7 @@ The following is a Card definition that uses no custom cards.
 To use the definition, add a new `Vertical stack` card to a dashboard view and select `SHOW CODE EDITOR`. Paste the definition below over
 the existing text and `SAVE`. Your card should look something like this once you select an SSID:
 
-<img src="/img/SSID Form.png" alt="SSID Editing Form Example" width="25%">
+<img src="/img/SSID Form.png" alt="SSID Editing Form Example" width="35%">
 
 ```yaml
 type: vertical-stack

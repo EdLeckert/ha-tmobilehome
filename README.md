@@ -30,6 +30,15 @@ affiliated with T‑Mobile USA, Inc. or Deutsche Telekom AG.
 
 ## Usage
 
+### Entities
+Several types of entities are provided:
+- `Simple Sensor Entities` provide a single piece of data, such as 5G cell signal quality.
+- `Aggregate Sensor Entities` provide one or more dict objects as attributes. These objects contain raw data from the gateway.
+- `Select Entities` allow you to make changes to the gateway's settings by selecting from a list of choices.
+- `Switch Entities` allow you to make changes to the gateway's settings by turning a feature on or off.
+- `Editing Entities` allow you to create forms to edit a group of related settings together.
+
+
 ### Simple Sensor Entities
 `Simple Sensor Entities` can be used directly on dashboards in cards such as the `Entities` card.
 

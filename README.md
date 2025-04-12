@@ -312,7 +312,8 @@ cards:
       - type: markdown
         content: >
           <ha-alert alert-type="error">Spaces and other special characters are
-          not allowed in SSID names.</ha-alert>
+          not allowed in SSID names, and length must be between 1 and
+          28.</ha-alert>
 
 
           Valid characters are: 
@@ -328,7 +329,8 @@ cards:
       - type: markdown
         content: >
           <ha-alert alert-type="error">Spaces and other special characters are
-          not allowed in SSID passwords.</ha-alert>
+          not allowed in SSID passwords, and length must be between 8 and
+          63.</ha-alert>
 
           Valid characters are:
 

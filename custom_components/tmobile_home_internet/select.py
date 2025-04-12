@@ -13,6 +13,8 @@ from .const import (
     DOMAIN,
 )
 
+from .utils import set_edits_pending, set_ssid_edit_controls
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -21,7 +23,7 @@ async def async_setup_entry(
     entry: dict,
     async_add_entities: Callable,
 ):
-    """Set up the Home Assistant T-Mobile Home Internet switches."""
+    """Set up the Home Assistant T-Mobile Home Internet selects."""
     entities = _create_entities(hass, entry)
     async_add_entities(entities)
 
@@ -35,6 +37,8 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     entities.append(GatewayWiFi50GHzChannelSelect(hass, entry, slow_coordinator, controller))
     entities.append(GatewayWiFi24GHzBandwidthSelect(hass, entry, slow_coordinator, controller))
     entities.append(GatewayWiFi50GHzBandwidthSelect(hass, entry, slow_coordinator, controller))
+    entities.append(GatewayEditSSIDsSelect(hass, entry, slow_coordinator, controller))
+    entities.append(GatewayEditSSIDEncryptionVersionSelect(hass, entry, slow_coordinator, controller))
 
     return entities
 
@@ -218,3 +222,101 @@ class GatewayWiFi50GHzBandwidthSelect(GatewaySelect):
         await self._hass.async_add_executor_job(self._controller.set_ap_config, access_point)
         await self._coordinator.async_request_refresh()
 
+
+class GatewayEditSSIDsSelect(GatewaySelect):
+    """Represent a select for the gateway."""
+
+    _attr_should_poll = False
+    _attr_current_option: str | None = None
+
+    def __init__(self, hass, entry, coordinator, controller):
+        """Set up a new HA T-Mobile Home Internet edit SSIDs select."""
+        super().__init__(hass, entry, coordinator, controller)
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        return "mdi:access-point"
+
+    @property
+    def name(self) -> str:
+        """Return the name of this select."""
+        return f"T-Mobile Edit SSIDs"
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return slugify(f"{self._entity_type}_tmobile_home_internet_edit_ssids")
+
+    @property
+    def options(self) -> list[str]:
+        """A list of available options as strings"""
+        ssids = self.coordinator.data["access_point"]['ssids']
+        ssidNames = []
+        for ssid in ssids:
+            ssidNames.append(ssid['ssidName'])
+
+        return ssidNames
+
+    @property
+    def current_option(self) -> str | None:
+        """Return the selected entity option to represent the entity state."""
+        return self._attr_current_option
+
+    async def async_select_option(self, option: str) -> None:
+        """Change the selected option."""
+        self._attr_current_option = option
+        self.async_write_ha_state()
+
+        # Set editing controls to current settings
+        ssid_index = self.options.index(option)
+        await set_ssid_edit_controls(self._hass, self._coordinator, ssid_index)
+        await self.hass.services.async_call(
+                    "homeassistant", "update_entity", 
+                    {"entity_id": "sensor.t_mobile_gateway_ssid_edit_index"}, 
+                    blocking=True
+                )
+
+
+class GatewayEditSSIDEncryptionVersionSelect(GatewaySelect):
+    """Represent a select for the gateway."""
+
+    _attr_should_poll = False
+    _attr_current_option: str | None = None
+
+    def __init__(self, hass, entry, coordinator, controller):
+        """Set up a new HA T-Mobile Home Internet edit SSID Encrption Version select."""
+        super().__init__(hass, entry, coordinator, controller)
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        return "mdi:access-point"
+
+    @property
+    def name(self) -> str:
+        """Return the name of this select."""
+        return f"T-Mobile Edit SSID Encryption Version"
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return slugify(f"{self._entity_type}_tmobile_home_internet_edit_ssid_encryption_version")
+
+    @property
+    def options(self) -> list[str]:
+        """A list of available options as strings"""
+        return ["WPA2/WPA3", "WPA2"]
+
+    @property
+    def current_option(self) -> str | None:
+        """Return the selected entity option to represent the entity state."""
+        return self._attr_current_option
+
+    async def async_select_option(self, option: str) -> None:
+        """Change the selected option."""
+        self._attr_current_option = option
+        self.async_write_ha_state()
+
+        # Show edits pending
+        await set_edits_pending(True)

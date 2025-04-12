@@ -6,9 +6,8 @@ import logging
 import async_timeout
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import Platform
-from homeassistant.core import HomeAssistant, ServiceCall
-from homeassistant.const import CONF_USERNAME, CONF_PASSWORD
+from homeassistant.const import CONF_USERNAME, CONF_PASSWORD, EVENT_CALL_SERVICE, Platform
+from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers import config_validation as cv
@@ -23,14 +22,25 @@ from pytmhi import TmiApiClient
 
 from .const import GET_ACCESS_POINT_RETRIES, GET_ACCESS_POINT_RETRY_SECONDS, DOMAIN, FAST_POLL_SECONDS, SLOW_POLL_SECONDS
 
+from .utils import Static, validate_text_and_update_entities
+
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS: list[Platform] = [Platform.SELECT, Platform.SENSOR, Platform.SWITCH]
+PLATFORMS: list[Platform] = [Platform.BUTTON, Platform.SELECT, Platform.SENSOR, Platform.SWITCH, Platform.TEXT]
+
+def setup(hass, config):
+    # Setup service call listener to check validity of text
+    hass.bus.listen(EVENT_CALL_SERVICE, validate_text_and_update_entities)
+
+    # Provide hass object to utils
+    static = Static()
+    static.hass = hass
+
+    return True
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Home Assistant T-Mobile Home Internet from a config entry."""
-
     hass.data.setdefault(DOMAIN, {})
 
     try:

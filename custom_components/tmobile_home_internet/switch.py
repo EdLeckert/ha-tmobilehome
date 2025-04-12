@@ -13,6 +13,8 @@ from .const import (
     DOMAIN,
 )
 
+from .utils import set_edits_pending
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -33,6 +35,14 @@ def _create_entities(hass: HomeAssistant, entry: dict):
 
     entities.append(GatewayWiFi24GHzSwitch(hass, entry, slow_coordinator, controller))
     entities.append(GatewayWiFi50GHzSwitch(hass, entry, slow_coordinator, controller))
+    entities.append(GatewayEditSSIDsEditsPendingSwitch(hass, entry, slow_coordinator, controller))
+    entities.append(GatewayEditSSIDsEditsNameValidSwitch(hass, entry, slow_coordinator, controller))
+    entities.append(GatewayEditSSIDsEditsPasswordValidSwitch(hass, entry, slow_coordinator, controller))
+    entities.append(GatewayEditSSIDsEditsSavingSwitch(hass, entry, slow_coordinator, controller))
+    entities.append(GatewayEditSSIDHiddenSwitch(hass, entry, slow_coordinator, controller))
+    entities.append(GatewayEditSSIDGuestSwitch(hass, entry, slow_coordinator, controller))
+    entities.append(GatewayEditSSID24GHzSwitch(hass, entry, slow_coordinator, controller))
+    entities.append(GatewayEditSSID50GHzSwitch(hass, entry, slow_coordinator, controller))
 
     return entities
 
@@ -166,3 +176,368 @@ class GatewayWiFi50GHzSwitch(GatewaySwitch):
         # Doing an async_request_refresh here won't work as the router is resetting.
         self._attr_is_on = False
         self.async_write_ha_state()
+
+
+class GatewayEditSSIDsEditsPendingSwitch(GatewaySwitch):
+    """Represent a switch for the gateway."""
+
+    _attr_is_on: bool = False
+
+    def __init__(self, hass, entry, coordinator, controller):
+        """Set up a new HA T-Mobile Home Internet Edits Pending switch."""
+        super().__init__(hass, entry, coordinator, controller)
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        return "mdi:access-point"
+
+    @property
+    def name(self) -> str:
+        """Return the name of this switch."""
+        return f"T-Mobile Edit SSID Edits Pending"
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return slugify(f"{self._entity_type}_tmobile_home_internet_edit_ssid_edits_pending")
+
+    @property
+    def entity_registry_visible_default(self) -> bool:
+        """Set entity invisible by default."""
+        return False
+
+    @property
+    def is_on(self) -> bool:
+        """Return the value of this switch."""
+        return self._attr_is_on
+
+    async def async_turn_on(self, **kwargs):
+        """Note edit pending."""
+        self._attr_is_on = True
+        self.async_write_ha_state()
+
+    async def async_turn_off(self, **kwargs):
+        """Note edit no longer pending."""
+        self._attr_is_on = False
+        self.async_write_ha_state()
+
+
+class GatewayEditSSIDsEditsNameValidSwitch(GatewaySwitch):
+    """Represent a switch for the gateway."""
+
+    _attr_is_on: bool = True
+
+    def __init__(self, hass, entry, coordinator, controller):
+        """Set up a new HA T-Mobile Home Internet Edits Name Valid switch."""
+        super().__init__(hass, entry, coordinator, controller)
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        return "mdi:access-point"
+
+    @property
+    def name(self) -> str:
+        """Return the name of this switch."""
+        return f"T-Mobile Edit SSID Edits Name Valid"
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return slugify(f"{self._entity_type}_tmobile_home_internet_edit_ssid_edits_name_valid")
+
+    @property
+    def entity_registry_visible_default(self) -> bool:
+        """Set entity invisible by default."""
+        return False
+
+    @property
+    def is_on(self) -> bool:
+        """Return the value of this switch."""
+        return self._attr_is_on
+
+    async def async_turn_on(self, **kwargs):
+        """Note edited name valid."""
+        self._attr_is_on = True
+        self.async_write_ha_state()
+
+    async def async_turn_off(self, **kwargs):
+        """Note edited name not valid."""
+        self._attr_is_on = False
+        self.async_write_ha_state()
+
+
+class GatewayEditSSIDsEditsPasswordValidSwitch(GatewaySwitch):
+    """Represent a switch for the gateway."""
+
+    _attr_is_on: bool = True
+
+    def __init__(self, hass, entry, coordinator, controller):
+        """Set up a new HA T-Mobile Home Internet Edits Password Valid switch."""
+        super().__init__(hass, entry, coordinator, controller)
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        return "mdi:access-point"
+
+    @property
+    def name(self) -> str:
+        """Return the name of this switch."""
+        return f"T-Mobile Edit SSID Edits Password Valid"
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return slugify(f"{self._entity_type}_tmobile_home_internet_edit_ssid_edits_password_valid")
+
+    @property
+    def entity_registry_visible_default(self) -> bool:
+        """Set entity invisible by default."""
+        return False
+
+    @property
+    def is_on(self) -> bool:
+        """Return the value of this switch."""
+        return self._attr_is_on
+
+    async def async_turn_on(self, **kwargs):
+        """Note edited password valid."""
+        self._attr_is_on = True
+        self.async_write_ha_state()
+
+    async def async_turn_off(self, **kwargs):
+        """Note edited password not valid."""
+        self._attr_is_on = False
+        self.async_write_ha_state()
+
+
+class GatewayEditSSIDsEditsSavingSwitch(GatewaySwitch):
+    """Represent a switch for the gateway."""
+
+    _attr_is_on: bool = False
+
+    def __init__(self, hass, entry, coordinator, controller):
+        """Set up a new HA T-Mobile Home Internet Edits Saving switch."""
+        super().__init__(hass, entry, coordinator, controller)
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        return "mdi:access-point"
+
+    @property
+    def name(self) -> str:
+        """Return the name of this switch."""
+        return f"T-Mobile Edit SSID Edits Saving"
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return slugify(f"{self._entity_type}_tmobile_home_internet_edit_ssid_edits_saving")
+
+    @property
+    def entity_registry_visible_default(self) -> bool:
+        """Set entity invisible by default."""
+        return False
+
+    @property
+    def is_on(self) -> bool:
+        """Return the value of this switch."""
+        return self._attr_is_on
+
+    async def async_turn_on(self, **kwargs):
+        """Note edit saving."""
+        self._attr_is_on = True
+        self.async_write_ha_state()
+
+    async def async_turn_off(self, **kwargs):
+        """Note edit no longer saving."""
+        self._attr_is_on = False
+        self.async_write_ha_state()
+
+
+class GatewayEditSSIDHiddenSwitch(GatewaySwitch):
+    """Represent a switch for the gateway."""
+
+    _attr_is_on: bool | None = None
+
+    def __init__(self, hass, entry, coordinator, controller):
+        """Set up a new HA T-Mobile Home Internet edit SSID Hidden switch."""
+        super().__init__(hass, entry, coordinator, controller)
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        return "mdi:access-point"
+
+    @property
+    def name(self) -> str:
+        """Return the name of this switch."""
+        return f"T-Mobile Edit SSID Hidden"
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return slugify(f"{self._entity_type}_tmobile_home_internet_edit_ssid_hidden")
+
+    @property
+    def is_on(self) -> bool:
+        """Return the value of this switch."""
+        return self._attr_is_on
+
+    async def async_turn_on(self, **kwargs):
+        """Hide SSID."""
+        self._attr_is_on = True
+        self.async_write_ha_state()
+
+        # Show edits pending
+        await set_edits_pending(True)
+
+    async def async_turn_off(self, **kwargs):
+        """Expose SSID."""
+        self._attr_is_on = False
+        self.async_write_ha_state()
+
+        # Show edits pending
+        await set_edits_pending(True)
+
+
+class GatewayEditSSIDGuestSwitch(GatewaySwitch):
+    """Represent a switch for the gateway."""
+
+    _attr_is_on: bool | None = None
+
+    def __init__(self, hass, entry, coordinator, controller):
+        """Set up a new HA T-Mobile Home Internet edit SSID Guest switch."""
+        super().__init__(hass, entry, coordinator, controller)
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        return "mdi:access-point"
+
+    @property
+    def name(self) -> str:
+        """Return the name of this switch."""
+        return f"T-Mobile Edit SSID Guest"
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return slugify(f"{self._entity_type}_tmobile_home_internet_edit_ssid_guest")
+
+    @property
+    def is_on(self) -> bool:
+        """Return the value of this switch."""
+        return self._attr_is_on
+
+    async def async_turn_on(self, **kwargs):
+        """Set guest mode."""
+        self._attr_is_on = True
+        self.async_write_ha_state()
+
+        # Show edits pending
+        await set_edits_pending(True)
+
+    async def async_turn_off(self, **kwargs):
+        """Clear guest mode."""
+        self._attr_is_on = False
+        self.async_write_ha_state()
+
+        # Show edits pending
+        await set_edits_pending(True)
+
+
+class GatewayEditSSID24GHzSwitch(GatewaySwitch):
+    """Represent a switch for the gateway."""
+
+    _attr_is_on: bool | None = None
+
+    def __init__(self, hass, entry, coordinator, controller):
+        """Set up a new HA T-Mobile Home Internet edit SSID 2.4GHz switch."""
+        super().__init__(hass, entry, coordinator, controller)
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        return "mdi:access-point"
+
+    @property
+    def name(self) -> str:
+        """Return the name of this switch."""
+        return f"T-Mobile Edit SSID 2.4GHz"
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return slugify(f"{self._entity_type}_tmobile_home_internet_edit_ssid_2_4ghz")
+
+    @property
+    def is_on(self) -> bool:
+        """Return the value of this switch."""
+        return self._attr_is_on
+
+    async def async_turn_on(self, **kwargs):
+        """Enable 2.4GHz band."""
+        self._attr_is_on = True
+        self.async_write_ha_state()
+
+        # Show edits pending
+        await set_edits_pending(True)
+
+    async def async_turn_off(self, **kwargs):
+        """Disable 2.4GHz band."""
+        self._attr_is_on = False
+        self.async_write_ha_state()
+
+        # Show edits pending
+        await set_edits_pending(True)
+
+
+class GatewayEditSSID50GHzSwitch(GatewaySwitch):
+    """Represent a switch for the gateway."""
+
+    _attr_is_on: bool | None = None
+
+    def __init__(self, hass, entry, coordinator, controller):
+        """Set up a new HA T-Mobile Home Internet edit SSID 5.0GHz switch."""
+        super().__init__(hass, entry, coordinator, controller)
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        return "mdi:access-point"
+
+    @property
+    def name(self) -> str:
+        """Return the name of this switch."""
+        return f"T-Mobile Edit SSID 5.0GHz"
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return slugify(f"{self._entity_type}_tmobile_home_internet_edit_ssid_5_0ghz")
+
+    @property
+    def is_on(self) -> bool:
+        """Return the value of this switch."""
+        return self._attr_is_on
+
+    async def async_turn_on(self, **kwargs):
+        """Enable 5.0GHz band."""
+        self._attr_is_on = True
+        self.async_write_ha_state()
+
+        # Show edits pending
+        await set_edits_pending(True)
+
+    async def async_turn_off(self, **kwargs):
+        """Disable 5.0GHz band."""
+        self._attr_is_on = False
+        self.async_write_ha_state()
+
+        # Show edits pending
+        await set_edits_pending(True)
+

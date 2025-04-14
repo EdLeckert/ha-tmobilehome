@@ -149,8 +149,8 @@ These entities can be used individually, as long as an SSID is selected using `T
 is then "pressed" to apply any changes. However, they are best used together in a form. See `Examples` below.
 
 **Note: `T-Mobile Edit SSID Password` will display each SSID's password in free text for anyone using your Home Assistant instance to see. 
-If this is an issue in your environment, go to `Settings\Devices & services\Entities` tab, find the entity, and edit it to clear the `Enabled` 
-setting. However, the editing of SSIDs will no longer work properly.**
+If this is an issue in your environment, go to the `Settings\Devices & services\Entities` tab, find the entity, and edit it to clear the `Enabled` 
+switch. However, the editing of SSIDs will no longer work properly.**
 
 ### Actions
 
@@ -208,6 +208,9 @@ template:
         unique_id: t_mobile_home_internet_softwareVersion
         state: '{{ state_attr("sensor.t_mobile_gateway","device")["softwareVersion"] }}'
 ```
+
+Note that the `T-Mobile Gateway` entity must be enabled for this to work. Go to the `Settings\Devices & services\Entities` tab, 
+find the entity, and edit it to set the `Enabled` switch.
 
 ### Display a list of clients known to the gateway in a table
 

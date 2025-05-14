@@ -184,9 +184,10 @@ alternate hostname.
 
 Note that these hostnames are only stored in the integration, and will not be passed back to the gateway or client device.
 
-`List Client Hostnames` can be used to show which clients have had an alternate hostname provided.
+`List Client Hostnames` can be used to show which clients have had an alternate hostname provided by `Set Client Hostname`.
 
-`Clear Client Hostname` can be used to remove one or all alternate hostnames.
+`Clear Client Hostname` can be used to remove one or all alternate hostnames. Using `Set Client Hostname` with a blank
+hostname will also clear the hostname for a device.
 
 `Get Gateway`, `Get Gateway Clients`, `Get Gateway SIM Card`, `Get Access Point`, and `Get Cell Status` return data that
 is identical to that provided by the aggregate sensor entities above, but without filling history.

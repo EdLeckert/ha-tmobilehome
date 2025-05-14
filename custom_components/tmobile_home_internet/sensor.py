@@ -301,15 +301,20 @@ class GatewayDeviceSensor(GatewaySensor):
         new_client = { 'mac' : mac_address, 'name' : hostname }
         found = False
 
-        # Update hostname if entry exists
-        for client in edited_clients:
-            if 'mac' in client and client['mac'].upper() == mac_address.upper():
-                client.update(new_client)
-                found = True
+        # Remove client if blank hostname
+        if len(hostname) == 0:
+            edited_clients = [d for d in edited_clients if d.get('mac').upper() != mac_address.upper()]
+        else:
 
-        # Otherwise, add new entry to list
-        if not found:
-            edited_clients.append(new_client)
+            # Update hostname if entry exists
+            for client in edited_clients:
+                if 'mac' in client and client['mac'].upper() == mac_address.upper():
+                    client.update(new_client)
+                    found = True
+
+            # Otherwise, add new entry to list
+            if not found:
+                edited_clients.append(new_client)
 
         await self._store.async_save(edited_clients)
 

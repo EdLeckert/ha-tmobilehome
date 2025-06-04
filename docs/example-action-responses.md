@@ -9,7 +9,7 @@ The following sections show examples of the data returned by these actions.
 
 ### T-Mobile Home Internet: Get Access Point
 
-```JSON
+```yaml
 sensor.t_mobile_gateway:
   2.4ghz:
     airtimeFairness: true
@@ -54,7 +54,7 @@ sensor.t_mobile_gateway:
 
 ### T-Mobile Home Internet: Get Cell Status
 
-```JSON
+```yaml
 sensor.t_mobile_gateway:
   4g:
     bandwidth: 20M
@@ -128,7 +128,7 @@ sensor.t_mobile_gateway:
 
 ### T-Mobile Home Internet: Get Client List
 
-```JSON
+```yaml
 
 sensor.t_mobile_gateway:
   clients:
@@ -169,7 +169,7 @@ sensor.t_mobile_gateway:
 
 ### T-Mobile Home Internet: Get Gateway
 
-```JSON
+```yaml
 sensor.t_mobile_gateway:
   device:
     friendlyName: 5G Gateway
@@ -191,7 +191,7 @@ sensor.t_mobile_gateway:
 
 ### T-Mobile Home Internet: Get Gateway Clients
 
-```JSON
+```yaml
 sensor.t_mobile_gateway:
   2.4ghz:
     - connected: true
@@ -229,7 +229,7 @@ sensor.t_mobile_gateway:
 
 ### T-Mobile Home Internet: Get Gateway SIM Card
 
-```JSON
+```yaml
 sensor.t_mobile_gateway:
   sim:
     iccId: "8901xxxxxxxxxxxxxxx"
@@ -241,7 +241,7 @@ sensor.t_mobile_gateway:
 
 ### T-Mobile Home Internet: List Client Hostnames
 
-```JSON
+```yaml
 sensor.t_mobile_gateway:
   - mac: xx:xx:xx:xx:xx:xx
     name: homeassistant
@@ -250,5 +250,3 @@ sensor.t_mobile_gateway:
   - mac: xx:xx:xx:xx:xx:xx
     name: Panel Living Room
 ```
-
-### 

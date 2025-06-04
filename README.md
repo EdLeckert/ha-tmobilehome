@@ -78,7 +78,7 @@ All entities begin with `T-Mobile`, which will be omitted from the "Friendly Nam
 | `Gateway Clients`  | 29            | Client Count | Detailed list of all connected clients. Disabled by default.
 | `Gateway Sim Card` | 5G Gateway    | Gateway Name | SIM card information
 | `Access Point`     | TMOBILE-xxxx  | SSID Name    | Detailed access point (wireless, or Wi-Fi) settings. Disabled by default.
-| `Cell Status`      | Bands: b2 n41 | Bands in Use | Detailed cell tower and received signal data (disabled by default). Disabled by default.
+| `Cell Status`      | Bands: b2 n41 | Bands in Use | Detailed cell tower and received signal data. Disabled by default.
 
 The `T-Mobile Cell Status` entity is particularly likely to bloat history, as it is somewhat large and changes very frequently.
 

@@ -1,5 +1,7 @@
 # T-Mobile Home Internet Integration for Home Assistant
 
+![GitHub Release](https://img.shields.io/github/v/release/EdLeckert/ha-tmobilehome)
+
 The `ha-tmobilehome` implementation allows you to integrate your T-Mobile Home Internet gateway data into Home Assistant.
 
 ## Features
@@ -195,6 +197,8 @@ is identical to that provided by the aggregate sensor entities above, but withou
 Actions are useful for populating a table (see table example below), while aggregate sensor entities are useful for creating template
 sensors (see template example below).
 
+[See sample action responses](docs/example-action-responses.md).
+
 ## Examples
 
 ### Create a Template Entity to monitor the gateway's software version
@@ -213,11 +217,16 @@ template:
 Note that the `T-Mobile Gateway` entity must be enabled for this to work. Go to the `Settings\Devices & services\Entities` tab, 
 find the entity, and edit it to set the `Enabled` switch.
 
-### Display a list of clients known to the gateway in a table
+### Display and edit a list of clients known to the gateway in a table
 
 The gateway's client list can be conveniently displayed by using a [custom:flex-table-card](https://github.com/custom-cards/flex-table-card).
 
-This sample configuration uses the `Get Client List` action mentioned above to populate a table with client details:
+The latest release of the card allows editing and calling actions. These features can be used to easily maintain the list of
+hostnames where the gateway was unable to provide a useful name.
+
+This sample configuration uses the `Get Client List` action to populate a table with client details, and the `Set Client Hostname`
+action after an edit to override the default hostname provided by the gateway.
+It also allows text in cells to be selected for copying to the clipboard:
 
 ```yaml
 type: custom:flex-table-card
@@ -226,9 +235,16 @@ action: tmobile_home_internet.get_client_list
 entities:
   include: sensor.t_mobile_gateway
 sort_by: IP Address
+selectable: true
 columns:
   - name: Name
     data: clients.name
+    edit_action:
+      action: perform-action
+      perform_action: tmobile_home_internet.set_client_hostname
+      data:
+        mac_address: cell[2]
+        hostname: cell[0]
   - name: IP Address
     data: clients.ipv4
   - name: MAC Address
@@ -246,7 +262,7 @@ columns:
 ### Display a form to edit SSIDs
 
 The `Editing Entities` described above can be displayed in a form to allow adding, deleting, and editing of SSID settings.
-The following is a Card definition that uses no custom cards.
+The following is a card definition that uses no custom cards.
 
 To use the definition, add a new `Vertical stack` card to a dashboard view and select `SHOW CODE EDITOR`. Paste the definition below over
 the existing text and `SAVE`. Your card should look something like this once you select an SSID:

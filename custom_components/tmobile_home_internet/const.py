@@ -1,4 +1,5 @@
 """Constants for the Home Assistant T-Mobile Home Internet integration."""
+from enum import IntFlag
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 import voluptuous as vol
 from homeassistant.helpers import config_validation as cv
@@ -72,3 +73,7 @@ SERVICE_GET_GATEWAY_CLIENTS: Final = "get_gateway_clients"
 SERVICE_GET_GATEWAY_SIM_CARD: Final = "get_gateway_sim_card"
 SERVICE_GET_CELL_STATUS: Final = "get_cell_status"
 
+class GatewayDeviceEntityFeature(IntFlag):
+    """Supported features of the gateway device entity."""
+
+    CAN_CALL_SERVICES = 1

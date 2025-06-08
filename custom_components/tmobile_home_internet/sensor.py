@@ -4,7 +4,6 @@ from typing import Callable
 
 from homeassistant.components.sensor import (SensorDeviceClass, SensorEntity)
 from homeassistant.core import HomeAssistant, SupportsResponse
-from homeassistant.exceptions import ServiceValidationError
 from homeassistant.util import slugify
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC, DeviceEntryType, DeviceInfo
 from homeassistant.helpers import entity_platform
@@ -181,47 +180,113 @@ async def async_setup_entry(
         supports_response=SupportsResponse.ONLY,
     )
 
+
 def _create_entities(hass: HomeAssistant, entry: dict):
-    entities = []
     fast_coordinator = hass.data[DOMAIN][entry.entry_id]["fast_coordinator"]
     slow_coordinator = hass.data[DOMAIN][entry.entry_id]["slow_coordinator"]
     controller = hass.data[DOMAIN][entry.entry_id]["controller"]
+    store = Store[dict[str, str]](hass, STORAGE_VERSION, STORAGE_KEY)
 
-    entities.append(GatewayDeviceSensor(hass, entry, slow_coordinator, fast_coordinator, controller))
-    entities.append(GatewayAccessPointSensor(hass, entry, slow_coordinator))
-    entities.append(GatewayClientsSensor(hass, entry, slow_coordinator))
-    entities.append(GatewayCellSensor(hass, entry, fast_coordinator))
-    entities.append(GatewayDeviceSimSensor(hass, entry, slow_coordinator))
-    entities.append(Gateway4gBandsSensor(hass, entry, fast_coordinator))
-    entities.append(Gateway4gRSRPSensor(hass, entry, fast_coordinator))
-    entities.append(Gateway4gRSRQSensor(hass, entry, fast_coordinator))
-    entities.append(Gateway4gSINRSensor(hass, entry, fast_coordinator))
-    entities.append(Gateway4gAntennaSensor(hass, entry, fast_coordinator))
-    entities.append(Gateway4gBandwidthSensor(hass, entry, fast_coordinator))
-    entities.append(Gateway4gECGISensor(hass, entry, fast_coordinator))
-    entities.append(Gateway5gBandsSensor(hass, entry, fast_coordinator))
-    entities.append(Gateway5gRSRPSensor(hass, entry, fast_coordinator))
-    entities.append(Gateway5gRSRQSensor(hass, entry, fast_coordinator))
-    entities.append(Gateway5gSINRSensor(hass, entry, fast_coordinator))
-    entities.append(Gateway5gAntennaSensor(hass, entry, fast_coordinator))
-    entities.append(Gateway5gBandwidthSensor(hass, entry, fast_coordinator))
-    entities.append(Gateway5gECGISensor(hass, entry, fast_coordinator))
-    entities.append(GatewayUptimeSensor(hass, entry, slow_coordinator))
-    entities.append(GatewaySSIDEditIndexSensor(hass, entry, slow_coordinator))
-    entities.append(GatewaySSIDCountSensor(hass, entry, slow_coordinator))
+    entities = []
+    entities.append(GatewayDeviceSensor(hass, slow_coordinator, fast_coordinator, controller, store))
+    entities.append(GatewayAccessPointSensor(slow_coordinator))
+    entities.append(GatewayClientsSensor(slow_coordinator))
+    entities.append(GatewayCellSensor(fast_coordinator))
+    entities.append(GatewayDeviceSimSensor(slow_coordinator))
+    entities.append(Gateway4gBandsSensor(fast_coordinator))
+    entities.append(Gateway4gRSRPSensor(fast_coordinator))
+    entities.append(Gateway4gRSRQSensor(fast_coordinator))
+    entities.append(Gateway4gSINRSensor(fast_coordinator))
+    entities.append(Gateway4gAntennaSensor(fast_coordinator))
+    entities.append(Gateway4gBandwidthSensor(fast_coordinator))
+    entities.append(Gateway4gECGISensor(fast_coordinator))
+    entities.append(Gateway5gBandsSensor(fast_coordinator))
+    entities.append(Gateway5gRSRPSensor(fast_coordinator))
+    entities.append(Gateway5gRSRQSensor(fast_coordinator))
+    entities.append(Gateway5gSINRSensor(fast_coordinator))
+    entities.append(Gateway5gAntennaSensor(fast_coordinator))
+    entities.append(Gateway5gBandwidthSensor(fast_coordinator))
+    entities.append(Gateway5gECGISensor(fast_coordinator))
+    entities.append(GatewayUptimeSensor(slow_coordinator))
+    entities.append(GatewaySSIDEditIndexSensor(hass, slow_coordinator))
+    entities.append(GatewaySSIDCountSensor(slow_coordinator))
 
     return entities
 
 
-class GatewayServicesSensor():
-    """Represent a sensor for services of the gateway."""
+class GatewaySensor(CoordinatorEntity, SensorEntity):
+    """Represent a sensor for the gateway."""
 
-    def __init__(self, hass, entry, coordinator):
-        """Set up a new HA T-Mobile Home Internet gateway services sensor."""
-        self._controller = hass.data[DOMAIN][entry.entry_id]["controller"]
-        self._store = Store[dict[str, str]](hass, STORAGE_VERSION, STORAGE_KEY)
+    def __init__(self, coordinator):
+        """Set up a new HA T-Mobile Home Internet gateway sensor."""
         self._coordinator = coordinator
+        self._entity_type = "sensor"
+        super().__init__(coordinator)
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, coordinator.config_entry.entry_id)},
+        )
 
+
+class GatewayDeviceSensor(GatewaySensor):
+    """Represent a sensor for the gateway."""
+
+    def __init__(self, hass, slow_coordinator, fast_coordinator, controller, store):
+        """Set up a new HA T-Mobile Home Internet gateway device sensor."""
+        self._hass = hass
+        self._coordinator = slow_coordinator
+        self._fast_coordinator = fast_coordinator
+        self._controller = controller
+        self._store = store
+        super().__init__(slow_coordinator)
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, self._coordinator.config_entry.entry_id)},
+            entry_type=DeviceEntryType.SERVICE,
+            connections={(CONNECTION_NETWORK_MAC, self._coordinator._gateway["device"]["macId"])},
+            serial_number=self._coordinator._gateway["device"]["serial"],
+            manufacturer=self._coordinator._gateway["device"]["manufacturer"],
+            model=self._coordinator._gateway["device"]["model"],
+            name=self._coordinator._gateway["device"]["name"],
+            sw_version=self._coordinator._gateway["device"]["softwareVersion"],
+            hw_version=self._coordinator._gateway["device"]["hardwareVersion"],
+        )
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        return "mdi:router-network-wireless"
+
+    @property
+    def name(self) -> str:
+        """Return the name of this sensor."""
+        return f"T-Mobile Gateway"
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return slugify(self._coordinator._gateway["device"]["serial"])
+
+    @property
+    def device_class(self) -> str:
+        """Return device_class."""
+        return "gateway"
+
+    @property
+    def supported_features(self) -> GatewayDeviceEntityFeature:
+        return GatewayDeviceEntityFeature.CAN_CALL_SERVICES
+
+    @property
+    def extra_state_attributes(self):
+        attributes = { "device": "None" }
+        if self._coordinator.data is not None:
+            attributes = self._coordinator._gateway
+        return attributes
+
+    @property
+    def native_value(self) -> int:
+        """Return the value of this sensor."""
+        return self._coordinator._gateway["device"]["friendlyName"]
+
+    # Services
     async def _reboot_gateway(self):
         """Reboot the gateway."""
         await self._hass.async_add_executor_job(self._controller.reboot_gateway)
@@ -247,7 +312,7 @@ class GatewayServicesSensor():
     async def _set_50_wifi_power(self, power_level: int) -> None:
         """Set 5.0GHz WiFi power level."""
         access_point = self._coordinator.data["access_point"]
-        access_point["2.4ghz"]["transmissionPower"] = ('50%' if power_level == "Half" else '100%')
+        access_point["5.0ghz"]["transmissionPower"] = ('50%' if power_level == "Half" else '100%')
         await self._hass.async_add_executor_job(self._controller.set_ap_config, access_point)
 
     async def _set_client_hostname(self, mac_address: str, hostname: str) -> None:
@@ -346,13 +411,6 @@ class GatewayServicesSensor():
             attributes = self._coordinator._sim
         return attributes
 
-class GatewayServicesFastSensor():
-    """Represent a sensor for services of the gateway needing the Fast Coordinator."""
-
-    def __init__(self, coordinator):
-        """Set up a new HA T-Mobile Home Internet gateway fast services sensor."""
-        self._fast_coordinator = coordinator
-
     async def _get_cell_status(self) -> None:
         """Get Cell Status."""
         attributes = { "cell": "None" }
@@ -361,87 +419,12 @@ class GatewayServicesFastSensor():
         return attributes
 
 
-class GatewaySensor(CoordinatorEntity, SensorEntity):
-    """Represent a sensor for the gateway."""
-
-    def __init__(self, hass, entry, coordinator):
-        """Set up a new HA T-Mobile Home Internet gateway sensor."""
-        self._hass = hass
-        self._entry = entry
-        self._coordinator = coordinator
-        self._entity_type = "sensor"
-        super().__init__(coordinator)
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, coordinator.config_entry.entry_id)},
-        )
-
-
-class GatewayDeviceSensor(GatewaySensor, GatewayServicesSensor, GatewayServicesFastSensor):
-    """Represent a sensor for the gateway."""
-
-    def __init__(self, hass, entry, slow_coordinator, fast_coordinator, controller):
-        """Set up a new HA T-Mobile Home Internet gateway device sensor."""
-        self._coordinator = slow_coordinator
-        self._controller = controller
-        self._store = Store[dict[str, str]](hass, STORAGE_VERSION, STORAGE_KEY)
-        GatewaySensor.__init__(self, hass, entry, slow_coordinator)
-        GatewayServicesSensor.__init__(self, hass, entry, slow_coordinator)
-        GatewayServicesFastSensor.__init__(self, fast_coordinator)
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, self._coordinator.config_entry.entry_id)},
-            entry_type=DeviceEntryType.SERVICE,
-            connections={(CONNECTION_NETWORK_MAC, self._coordinator._gateway["device"]["macId"])},
-            serial_number=self._coordinator._gateway["device"]["serial"],
-            manufacturer=self._coordinator._gateway["device"]["manufacturer"],
-            model=self._coordinator._gateway["device"]["model"],
-            name=self._coordinator._gateway["device"]["name"],
-            sw_version=self._coordinator._gateway["device"]["softwareVersion"],
-            hw_version=self._coordinator._gateway["device"]["hardwareVersion"],
-        )
-
-    @property
-    def icon(self) -> str:
-        """Return icon."""
-        return "mdi:router-network-wireless"
-
-    @property
-    def name(self) -> str:
-        """Return the name of this sensor."""
-        return f"T-Mobile Gateway"
-
-    @property
-    def unique_id(self) -> str:
-        """Return a unique, Home Assistant friendly identifier for this entity."""
-        return slugify(self._coordinator._gateway["device"]["serial"])
-
-    @property
-    def device_class(self) -> str:
-        """Return device_class."""
-        return "gateway"
-
-    @property
-    def supported_features(self):
-        return 1
-
-    @property
-    def extra_state_attributes(self):
-        attributes = { "device": "None" }
-        if self._coordinator.data is not None:
-            attributes = self._coordinator._gateway
-        return attributes
-
-    @property
-    def native_value(self) -> int:
-        """Return the value of this sensor."""
-        return self._coordinator._gateway["device"]["friendlyName"]
-
-
 class GatewayAccessPointSensor(GatewaySensor):
     """Represent a sensor for the gateway."""
 
-    def __init__(self, hass, entry, coordinator):
+    def __init__(self, coordinator):
         """Set up a new HA T-Mobile Home Internet access point sensor."""
-        super().__init__(hass, entry, coordinator)
+        super().__init__(coordinator)
 
     @property
     def icon(self) -> str:
@@ -479,9 +462,9 @@ class GatewayAccessPointSensor(GatewaySensor):
 class GatewayClientsSensor(GatewaySensor):
     """Represent a sensor for the clients of the gateway."""
 
-    def __init__(self, hass, entry, coordinator):
+    def __init__(self, coordinator):
         """Set up a new HA T-Mobile Home Internet gateway clients sensor."""
-        super().__init__(hass, entry, coordinator)
+        super().__init__(coordinator)
 
     @property
     def icon(self) -> str:
@@ -526,9 +509,9 @@ class GatewayClientsSensor(GatewaySensor):
 class GatewayCellSensor(GatewaySensor):
     """Represent a sensor for the gateway."""
 
-    def __init__(self, hass, entry, coordinator):
+    def __init__(self, coordinator):
         """Set up a new HA T-Mobile Home Internet gateway cell sensor."""
-        super().__init__(hass, entry, coordinator)
+        super().__init__(coordinator)
 
     @property
     def icon(self) -> str:
@@ -566,9 +549,9 @@ class GatewayCellSensor(GatewaySensor):
 class GatewayDeviceSimSensor(GatewaySensor):
     """Represent a sensor for the gateway."""
 
-    def __init__(self, hass, entry, coordinator):
+    def __init__(self, coordinator):
         """Set up a new HA T-Mobile Home Internet gateway device sim sensor."""
-        super().__init__(hass, entry, coordinator)
+        super().__init__(coordinator)
 
     @property
     def icon(self) -> str:
@@ -601,9 +584,9 @@ class GatewayDeviceSimSensor(GatewaySensor):
 class Gateway4gBandsSensor(GatewaySensor):
     """Represent a sensor for the gateway 4G active bands."""
 
-    def __init__(self, hass, entry, coordinator):
+    def __init__(self, coordinator):
         """Set up a new HA T-Mobile Home Internet gateway 4G active bands sensor."""
-        super().__init__(hass, entry, coordinator)
+        super().__init__(coordinator)
 
     @property
     def icon(self) -> str:
@@ -618,7 +601,7 @@ class Gateway4gBandsSensor(GatewaySensor):
     @property
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
-        return slugify(f"{self._entry.unique_id}_{self._entity_type}_4g_bands")
+        return slugify(f"{self._entity_type}_tmobile_home_internet_4g_bands")
 
     @property
     def native_value(self) -> int:
@@ -629,9 +612,9 @@ class Gateway4gBandsSensor(GatewaySensor):
 class Gateway4gRSRPSensor(GatewaySensor):
     """Represent a sensor for the gateway 4G Reference Signal Received Power."""
 
-    def __init__(self, hass, entry, coordinator):
+    def __init__(self, coordinator):
         """Set up a new HA T-Mobile Home Internet gateway 4G RSRP sensor."""
-        super().__init__(hass, entry, coordinator)
+        super().__init__(coordinator)
 
     @property
     def icon(self) -> str:
@@ -671,9 +654,9 @@ class Gateway4gRSRPSensor(GatewaySensor):
 class Gateway4gRSRQSensor(GatewaySensor):
     """Represent a sensor for the gateway 4G Reference Signal Received Quality."""
 
-    def __init__(self, hass, entry, coordinator):
+    def __init__(self, coordinator):
         """Set up a new HA T-Mobile Home Internet gateway 4G RSRQ sensor."""
-        super().__init__(hass, entry, coordinator)
+        super().__init__(coordinator)
 
     @property
     def icon(self) -> str:
@@ -713,9 +696,9 @@ class Gateway4gRSRQSensor(GatewaySensor):
 class Gateway4gSINRSensor(GatewaySensor):
     """Represent a sensor for the gateway 4G Signal-to-interference-plus-noise ratio."""
 
-    def __init__(self, hass, entry, coordinator):
+    def __init__(self, coordinator):
         """Set up a new HA T-Mobile Home Internet gateway 4G SINR sensor."""
-        super().__init__(hass, entry, coordinator)
+        super().__init__(coordinator)
 
     @property
     def icon(self) -> str:
@@ -755,9 +738,9 @@ class Gateway4gSINRSensor(GatewaySensor):
 class Gateway4gAntennaSensor(GatewaySensor):
     """Represent a sensor for the gateway 4G antenna used."""
 
-    def __init__(self, hass, entry, coordinator):
+    def __init__(self, coordinator):
         """Set up a new HA T-Mobile Home Internet gateway 4G antenna used sensor."""
-        super().__init__(hass, entry, coordinator)
+        super().__init__(coordinator)
 
     @property
     def icon(self) -> str:
@@ -783,9 +766,9 @@ class Gateway4gAntennaSensor(GatewaySensor):
 class Gateway4gBandwidthSensor(GatewaySensor):
     """Represent a sensor for the gateway 4G bandwidth."""
 
-    def __init__(self, hass, entry, coordinator):
+    def __init__(self, coordinator):
         """Set up a new HA T-Mobile Home Internet gateway 4G bandwidth sensor."""
-        super().__init__(hass, entry, coordinator)
+        super().__init__(coordinator)
 
     @property
     def icon(self) -> str:
@@ -811,9 +794,9 @@ class Gateway4gBandwidthSensor(GatewaySensor):
 class Gateway4gECGISensor(GatewaySensor):
     """Represent a sensor for the gateway 4G ECGI."""
 
-    def __init__(self, hass, entry, coordinator):
+    def __init__(self, coordinator):
         """Set up a new HA T-Mobile Home Internet gateway 4G ECGI sensor."""
-        super().__init__(hass, entry, coordinator)
+        super().__init__(coordinator)
 
     @property
     def icon(self) -> str:
@@ -839,9 +822,9 @@ class Gateway4gECGISensor(GatewaySensor):
 class Gateway5gBandsSensor(GatewaySensor):
     """Represent a sensor for the gateway 4G active bands."""
 
-    def __init__(self, hass, entry, coordinator):
+    def __init__(self, coordinator):
         """Set up a new HA T-Mobile Home Internet gateway 5G active bands sensor."""
-        super().__init__(hass, entry, coordinator)
+        super().__init__(coordinator)
 
     @property
     def icon(self) -> str:
@@ -867,9 +850,9 @@ class Gateway5gBandsSensor(GatewaySensor):
 class Gateway5gRSRPSensor(GatewaySensor):
     """Represent a sensor for the gateway 5G Reference Signal Received Power."""
 
-    def __init__(self, hass, entry, coordinator):
+    def __init__(self, coordinator):
         """Set up a new HA T-Mobile Home Internet gateway 5G RSRP sensor."""
-        super().__init__(hass, entry, coordinator)
+        super().__init__(coordinator)
 
     @property
     def icon(self) -> str:
@@ -909,9 +892,9 @@ class Gateway5gRSRPSensor(GatewaySensor):
 class Gateway5gRSRQSensor(GatewaySensor):
     """Represent a sensor for the gateway 5G Reference Signal Received Quality."""
 
-    def __init__(self, hass, entry, coordinator):
+    def __init__(self, coordinator):
         """Set up a new HA T-Mobile Home Internet gateway 5G RSRQ sensor."""
-        super().__init__(hass, entry, coordinator)
+        super().__init__(coordinator)
 
     @property
     def icon(self) -> str:
@@ -952,9 +935,9 @@ class Gateway5gRSRQSensor(GatewaySensor):
 class Gateway5gSINRSensor(GatewaySensor):
     """Represent a sensor for the gateway 5G Signal-to-interference-plus-noise ratio."""
 
-    def __init__(self, hass, entry, coordinator):
+    def __init__(self, coordinator):
         """Set up a new HA T-Mobile Home Internet gateway 5G SINR sensor."""
-        super().__init__(hass, entry, coordinator)
+        super().__init__(coordinator)
 
     @property
     def icon(self) -> str:
@@ -994,9 +977,9 @@ class Gateway5gSINRSensor(GatewaySensor):
 class Gateway5gAntennaSensor(GatewaySensor):
     """Represent a sensor for the gateway 5G antenna used."""
 
-    def __init__(self, hass, entry, coordinator):
+    def __init__(self, coordinator):
         """Set up a new HA T-Mobile Home Internet gateway 5G antenna used sensor."""
-        super().__init__(hass, entry, coordinator)
+        super().__init__(coordinator)
 
     @property
     def icon(self) -> str:
@@ -1022,9 +1005,9 @@ class Gateway5gAntennaSensor(GatewaySensor):
 class Gateway5gBandwidthSensor(GatewaySensor):
     """Represent a sensor for the gateway 5G bandwidth."""
 
-    def __init__(self, hass, entry, coordinator):
+    def __init__(self, coordinator):
         """Set up a new HA T-Mobile Home Internet gateway 5G bandwidth sensor."""
-        super().__init__(hass, entry, coordinator)
+        super().__init__(coordinator)
 
     @property
     def icon(self) -> str:
@@ -1050,9 +1033,9 @@ class Gateway5gBandwidthSensor(GatewaySensor):
 class Gateway5gECGISensor(GatewaySensor):
     """Represent a sensor for the gateway 5G ECGI."""
 
-    def __init__(self, hass, entry, coordinator):
+    def __init__(self, coordinator):
         """Set up a new HA T-Mobile Home Internet gateway 5G ECGI sensor."""
-        super().__init__(hass, entry, coordinator)
+        super().__init__(coordinator)
 
     @property
     def icon(self) -> str:
@@ -1078,9 +1061,9 @@ class Gateway5gECGISensor(GatewaySensor):
 class GatewayUptimeSensor(GatewaySensor):
     """Represent a sensor for the gateway uptime."""
 
-    def __init__(self, hass, entry, coordinator):
+    def __init__(self, coordinator):
         """Set up a new HA T-Mobile Home Internet gateway uptime sensor."""
-        super().__init__(hass, entry, coordinator)
+        super().__init__(coordinator)
 
     @property
     def icon(self) -> str:
@@ -1111,9 +1094,10 @@ class GatewayUptimeSensor(GatewaySensor):
 class GatewaySSIDEditIndexSensor(GatewaySensor):
     """Represent a sensor for the gateway SSID Edit Index."""
 
-    def __init__(self, hass, entry, coordinator):
+    def __init__(self, hass, coordinator):
         """Set up a new HA T-Mobile Home Internet gateway SSID Edit Index sensor."""
-        super().__init__(hass, entry, coordinator)
+        self._hass = hass
+        super().__init__(coordinator)
 
     @property
     def icon(self) -> str:
@@ -1138,9 +1122,9 @@ class GatewaySSIDEditIndexSensor(GatewaySensor):
 class GatewaySSIDCountSensor(GatewaySensor):
     """Represent a sensor for the gateway SSID Count."""
 
-    def __init__(self, hass, entry, coordinator):
+    def __init__(self, coordinator):
         """Set up a new HA T-Mobile Home Internet gateway SSID Count sensor."""
-        super().__init__(hass, entry, coordinator)
+        super().__init__(coordinator)
 
     @property
     def icon(self) -> str:

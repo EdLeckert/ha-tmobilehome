@@ -249,6 +249,11 @@ class GatewayEditSSIDsSelect(GatewaySelect):
         return slugify(f"{self._entity_type}_tmobile_home_internet_edit_ssids")
 
     @property
+    def entity_registry_visible_default(self) -> bool:
+        """Set entity hidden by default."""
+        return False
+
+    @property
     def options(self) -> list[str]:
         """A list of available options as strings"""
         ssids = self.coordinator.data["access_point"]['ssids']
@@ -302,6 +307,11 @@ class GatewayEditSSIDEncryptionVersionSelect(GatewaySelect):
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
         return slugify(f"{self._entity_type}_tmobile_home_internet_edit_ssid_encryption_version")
+
+    @property
+    def entity_registry_visible_default(self) -> bool:
+        """Set entity hidden by default."""
+        return False
 
     @property
     def options(self) -> list[str]:

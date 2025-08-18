@@ -1115,6 +1115,11 @@ class GatewaySSIDEditIndexSensor(GatewaySensor):
         return slugify(f"{self._entity_type}_tmobile_home_internet_gateway_ssid_edit_index")
 
     @property
+    def entity_registry_visible_default(self) -> bool:
+        """Set entity hidden by default."""
+        return False
+
+    @property
     def native_value(self) -> int:
         """Return the value of this sensor."""
         return get_ssid_edit_index(self._hass)

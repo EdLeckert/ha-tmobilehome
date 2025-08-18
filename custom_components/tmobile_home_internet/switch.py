@@ -383,6 +383,11 @@ class GatewayEditSSIDHiddenSwitch(GatewaySwitch):
         return slugify(f"{self._entity_type}_tmobile_home_internet_edit_ssid_hidden")
 
     @property
+    def entity_registry_visible_default(self) -> bool:
+        """Set entity hidden by default."""
+        return False
+
+    @property
     def is_on(self) -> bool:
         """Return the value of this switch."""
         return self._attr_is_on
@@ -427,6 +432,11 @@ class GatewayEditSSIDGuestSwitch(GatewaySwitch):
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
         return slugify(f"{self._entity_type}_tmobile_home_internet_edit_ssid_guest")
+
+    @property
+    def entity_registry_visible_default(self) -> bool:
+        """Set entity hidden by default."""
+        return False
 
     @property
     def is_on(self) -> bool:
@@ -475,6 +485,11 @@ class GatewayEditSSID24GHzSwitch(GatewaySwitch):
         return slugify(f"{self._entity_type}_tmobile_home_internet_edit_ssid_2_4ghz")
 
     @property
+    def entity_registry_visible_default(self) -> bool:
+        """Set entity hidden by default."""
+        return False
+
+    @property
     def is_on(self) -> bool:
         """Return the value of this switch."""
         return self._attr_is_on
@@ -519,6 +534,11 @@ class GatewayEditSSID50GHzSwitch(GatewaySwitch):
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
         return slugify(f"{self._entity_type}_tmobile_home_internet_edit_ssid_5_0ghz")
+
+    @property
+    def entity_registry_visible_default(self) -> bool:
+        """Set entity hidden by default."""
+        return False
 
     @property
     def is_on(self) -> bool:

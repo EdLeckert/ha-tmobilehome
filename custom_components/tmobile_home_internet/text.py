@@ -79,6 +79,11 @@ class GatewayEditSSIDNameText(GatewayText):
         return slugify(f"{self._entity_type}_tmobile_home_internet_edit_ssid_name")
 
     @property
+    def entity_registry_visible_default(self) -> bool:
+        """Set entity hidden by default."""
+        return False
+
+    @property
     def pattern(self) -> str:
         """A regex pattern that the text value must match to be valid."""
         return SSID_NAME_PATTERN
@@ -130,6 +135,11 @@ class GatewayEditSSIDPasswordText(GatewayText):
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
         return slugify(f"{self._entity_type}_tmobile_home_internet_edit_ssid_password")
+
+    @property
+    def entity_registry_visible_default(self) -> bool:
+        """Set entity hidden by default."""
+        return False
 
     @property
     def pattern(self) -> str:

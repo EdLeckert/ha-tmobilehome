@@ -21,7 +21,7 @@ affiliated with T‑Mobile USA, Inc. or Deutsche Telekom AG.
 
 ## Requirements
 - T-Mobile Home Internet account
-- T-Mobile Home Internet gateway (only the TMO-G4SE has been tested, but other models may work)
+- T-Mobile Home Internet gateway (only the TMO-G4SE and TMO-G4AR have been tested, but other models may work)
 
 ## Installation
 1. Install manually by copying the `custom_components/tmobile_home_internet` folder into `<config_dir>/custom_components`.

@@ -541,10 +541,15 @@ class GatewayCellSensor(GatewaySensor):
         return attributes
 
     @property
-    def native_value(self) -> int:
+    def native_value(self) -> str | None:
         """Return the value of this sensor."""
-        return "Bands: " + ' '.join(self.coordinator.data["cell"]["4g"]["sector"]["bands"]) + ' ' + ' '.join(self.coordinator.data["cell"]["5g"]["sector"]["bands"])
-
+        if "4g" in self.coordinator.data["cell"] and "5g" in self.coordinator.data["cell"]:
+            return "Bands: " + ' '.join(self.coordinator.data["cell"]["4g"]["sector"]["bands"]) + ' ' + ' '.join(self.coordinator.data["cell"]["5g"]["sector"]["bands"])
+        elif "4g" in self.coordinator.data["cell"]:
+            return "Bands: " + ' '.join(self.coordinator.data["cell"]["4g"]["sector"]["bands"])
+        elif "5g" in self.coordinator.data["cell"]:
+            return "Bands: " + ' '.join(self.coordinator.data["cell"]["5g"]["sector"]["bands"])
+        return None
 
 class GatewayDeviceSimSensor(GatewaySensor):
     """Represent a sensor for the gateway."""
@@ -604,8 +609,10 @@ class Gateway4gBandsSensor(GatewaySensor):
         return slugify(f"{self._entity_type}_tmobile_home_internet_4g_bands")
 
     @property
-    def native_value(self) -> int:
+    def native_value(self) -> int | None:
         """Return the value of this sensor."""
+        if "4g" not in self.coordinator.data["cell"]:
+            return None
         return ' '.join(self.coordinator.data["cell"]["4g"]["sector"]["bands"])
 
 
@@ -646,8 +653,10 @@ class Gateway4gRSRPSensor(GatewaySensor):
         return "dBm"
 
     @property
-    def native_value(self) -> int:
+    def native_value(self) -> int | None:
         """Return the value of this sensor."""
+        if "4g" not in self.coordinator.data["cell"]:
+            return None
         return self.coordinator.data["cell"]["4g"]["sector"]["rsrp"]
 
 
@@ -688,8 +697,10 @@ class Gateway4gRSRQSensor(GatewaySensor):
         return { "description": "4G Reference Signal Received Quality" }
 
     @property
-    def native_value(self) -> int:
+    def native_value(self) -> int | None:
         """Return the value of this sensor."""
+        if "4g" not in self.coordinator.data["cell"]:
+            return None
         return self.coordinator.data["cell"]["4g"]["sector"]["rsrq"]
 
 
@@ -730,8 +741,10 @@ class Gateway4gSINRSensor(GatewaySensor):
         return { "description": "4G Signal to Interference & Noise Ratio" }
 
     @property
-    def native_value(self) -> int:
+    def native_value(self) -> int | None:
         """Return the value of this sensor."""
+        if "4g" not in self.coordinator.data["cell"]:
+            return None
         return self.coordinator.data["cell"]["4g"]["sector"]["sinr"]
 
 
@@ -758,8 +771,10 @@ class Gateway4gAntennaSensor(GatewaySensor):
         return slugify(f"{self._entity_type}_tmobile_home_internet_4g_antenna")
 
     @property
-    def native_value(self) -> int:
+    def native_value(self) -> int | None:
         """Return the value of this sensor."""
+        if "4g" not in self.coordinator.data["cell"]:
+            return None
         return self.coordinator.data["cell"]["4g"]["sector"]["antennaUsed"]
 
 
@@ -786,8 +801,10 @@ class Gateway4gBandwidthSensor(GatewaySensor):
         return slugify(f"{self._entity_type}_tmobile_home_internet_4g_bandwidth")
 
     @property
-    def native_value(self) -> int:
+    def native_value(self) -> int | None:
         """Return the value of this sensor."""
+        if "4g" not in self.coordinator.data["cell"]:
+            return None
         return self.coordinator.data["cell"]["4g"]["bandwidth"]
 
 
@@ -814,8 +831,10 @@ class Gateway4gECGISensor(GatewaySensor):
         return slugify(f"{self._entity_type}_tmobile_home_internet_4g_ecgi")
 
     @property
-    def native_value(self) -> int:
+    def native_value(self) -> int | None:
         """Return the value of this sensor."""
+        if "4g" not in self.coordinator.data["cell"]:
+            return None
         return self.coordinator.data["cell"]["4g"]["ecgi"]
 
 
@@ -842,8 +861,10 @@ class Gateway5gBandsSensor(GatewaySensor):
         return slugify(f"{self._entity_type}_tmobile_home_internet_5g_bands")
 
     @property
-    def native_value(self) -> int:
+    def native_value(self) -> int | None:
         """Return the value of this sensor."""
+        if "5g" not in self.coordinator.data["cell"]:
+            return None
         return ' '.join(self.coordinator.data["cell"]["5g"]["sector"]["bands"])
 
 
@@ -884,8 +905,10 @@ class Gateway5gRSRPSensor(GatewaySensor):
         return { "description": "5G Reference Signal Received Power" }
 
     @property
-    def native_value(self) -> int:
+    def native_value(self) -> int | None:
         """Return the value of this sensor."""
+        if "5g" not in self.coordinator.data["cell"]:
+            return None
         return self.coordinator.data["cell"]["5g"]["sector"]["rsrp"]
 
 
@@ -927,8 +950,10 @@ class Gateway5gRSRQSensor(GatewaySensor):
         return { "description": "5G Reference Signal Received Quality" }
 
     @property
-    def native_value(self) -> int:
+    def native_value(self) -> int | None:
         """Return the value of this sensor."""
+        if "5g" not in self.coordinator.data["cell"]:
+            return None
         return self.coordinator.data["cell"]["5g"]["sector"]["rsrq"]
 
 
@@ -969,8 +994,10 @@ class Gateway5gSINRSensor(GatewaySensor):
         return { "description": "5G Signal to Interference & Noise Ratio" }
 
     @property
-    def native_value(self) -> int:
+    def native_value(self) -> int | None:
         """Return the value of this sensor."""
+        if "5g" not in self.coordinator.data["cell"]:
+            return None
         return self.coordinator.data["cell"]["5g"]["sector"]["sinr"]
 
 
@@ -997,8 +1024,10 @@ class Gateway5gAntennaSensor(GatewaySensor):
         return slugify(f"{self._entity_type}_tmobile_home_internet_5g_antenna")
 
     @property
-    def native_value(self) -> int:
+    def native_value(self) -> int | None:
         """Return the value of this sensor."""
+        if "5g" not in self.coordinator.data["cell"]:
+            return None
         return self.coordinator.data["cell"]["5g"]["sector"]["antennaUsed"]
 
 
@@ -1025,8 +1054,10 @@ class Gateway5gBandwidthSensor(GatewaySensor):
         return slugify(f"{self._entity_type}_tmobile_home_internet_5g_bandwidth")
 
     @property
-    def native_value(self) -> int:
+    def native_value(self) -> int | None:
         """Return the value of this sensor."""
+        if "5g" not in self.coordinator.data["cell"]:
+            return None
         return self.coordinator.data["cell"]["5g"]["bandwidth"]
 
 
@@ -1053,8 +1084,10 @@ class Gateway5gECGISensor(GatewaySensor):
         return slugify(f"{self._entity_type}_tmobile_home_internet_5g_ecgi")
 
     @property
-    def native_value(self) -> int:
+    def native_value(self) -> int | None:
         """Return the value of this sensor."""
+        if "5g" not in self.coordinator.data["cell"]:
+            return None
         return self.coordinator.data["cell"]["5g"]["ecgi"]
 
 

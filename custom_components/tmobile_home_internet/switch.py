@@ -35,6 +35,7 @@ def _create_entities(hass: HomeAssistant, entry: dict):
 
     entities.append(GatewayWiFi24GHzSwitch(hass, entry, slow_coordinator, controller))
     entities.append(GatewayWiFi50GHzSwitch(hass, entry, slow_coordinator, controller))
+    entities.append(GatewayWiFi60GHzSwitch(hass, entry, slow_coordinator, controller))
     entities.append(GatewayEditSSIDsEditsPendingSwitch(hass, entry, slow_coordinator, controller))
     entities.append(GatewayEditSSIDsEditsNameValidSwitch(hass, entry, slow_coordinator, controller))
     entities.append(GatewayEditSSIDsEditsPasswordValidSwitch(hass, entry, slow_coordinator, controller))

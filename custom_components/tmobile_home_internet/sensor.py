@@ -16,6 +16,7 @@ from .const import (
     SERVICE_REBOOT_GATEWAY,
     SERVICE_ENABLE_24_WIFI,
     SERVICE_ENABLE_50_WIFI,
+    SERVICE_ENABLE_60_WIFI,
     SERVICE_SET_24_WIFI_POWER,
     SERVICE_SET_50_WIFI_POWER,
     SERVICE_SET_CLIENT_HOSTNAME,
@@ -30,6 +31,7 @@ from .const import (
     SCHEMA_SERVICE_REBOOT_GATEWAY,
     SCHEMA_SERVICE_ENABLE_24_WIFI,
     SCHEMA_SERVICE_ENABLE_50_WIFI,
+    SCHEMA_SERVICE_ENABLE_60_WIFI,
     SCHEMA_SERVICE_SET_24_WIFI_POWER,
     SCHEMA_SERVICE_SET_50_WIFI_POWER,
     SCHEMA_SERVICE_SET_CLIENT_HOSTNAME,
@@ -82,6 +84,14 @@ async def async_setup_entry(
         SERVICE_ENABLE_50_WIFI,
         SCHEMA_SERVICE_ENABLE_50_WIFI,
         "_enable_50_wifi",
+        [GatewayDeviceEntityFeature.CAN_CALL_SERVICES],
+    )
+
+    # This will call Entity._enable_60_wifi
+    platform.async_register_entity_service(
+        SERVICE_ENABLE_60_WIFI,
+        SCHEMA_SERVICE_ENABLE_60_WIFI,
+        "_enable_60_wifi",
         [GatewayDeviceEntityFeature.CAN_CALL_SERVICES],
     )
 

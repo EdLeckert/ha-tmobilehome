@@ -146,16 +146,3 @@ get_cell_status:
       integration: tmobile_home_internet
       device_class: gateway
 
-
-# set_wifi_ssid:
-#   target:
-#     entity:
-#       integration: tmobile_home_internet
-#       device_class: gateway
-#   fields:
-#     ssid:
-#       required: true
-#       example: "MyWifi"
-#       selector:
-#         text:
-#           type: "text"

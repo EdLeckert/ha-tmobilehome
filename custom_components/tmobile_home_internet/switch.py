@@ -43,6 +43,7 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     entities.append(GatewayEditSSIDGuestSwitch(hass, entry, slow_coordinator, controller))
     entities.append(GatewayEditSSID24GHzSwitch(hass, entry, slow_coordinator, controller))
     entities.append(GatewayEditSSID50GHzSwitch(hass, entry, slow_coordinator, controller))
+    entities.append(GatewayEditSSID60GHzSwitch(hass, entry, slow_coordinator, controller))
 
     return entities
 
@@ -176,6 +177,73 @@ class GatewayWiFi50GHzSwitch(GatewaySwitch):
         # Doing an async_request_refresh here won't work as the router is resetting.
         self._attr_is_on = False
         self.async_write_ha_state()
+
+
+class GatewayWiFi60GHzSwitch(GatewaySwitch):
+    """Represent a switch for the gateway."""
+
+    def __init__(self, hass, entry, coordinator, controller):
+        """Set up a new HA T-Mobile Home Internet WiFi 6.0GHz switch."""
+        super().__init__(hass, entry, coordinator, controller)
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        return "mdi:access-point"
+
+    @property
+    def name(self) -> str:
+        """Return the name of this switch."""
+        return f"T-Mobile Wi-Fi 6.0GHz"
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return slugify(f"{self._entity_type}_tmobile_home_internet_wifi_6_0GHz")
+
+    @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Set entity disabled by default."""
+        return False
+
+    @property
+    def extra_state_attributes(self):
+        return {
+            "warning": "Turning off the 6.0GHz radio disables WiFi on this frequency. Only turn WiFi off if you have a wired connection to your gateway.",
+            "notice": "Gateway will reset if this setting is changed, and may lose communications for a minute or more."
+            }
+
+    @property
+    def is_on(self) -> bool:
+        """Return the value of this switch."""
+        access_point = self.coordinator.data["access_point"]
+        if "6.0ghz" in access_point:
+          return bool(access_point["6.0ghz"]["isRadioEnabled"])
+        return False
+
+    async def async_turn_on(self, **kwargs):
+        """Enable WiFi 6.0GHz."""
+        access_point = self.coordinator.data["access_point"]
+        if "6.0ghz" in access_point:
+          access_point["6.0ghz"]["isRadioEnabled"] = True
+          await self._hass.async_add_executor_job(self._controller.set_ap_config, access_point)
+          # Doing an async_request_refresh here won't work as the router is resetting.
+          self._attr_is_on = True
+          self.async_write_ha_state()
+        else:
+          raise Exception("6.0GHz band not supported by this gateway.")
+
+    async def async_turn_off(self, **kwargs):
+        """Disable WiFi 6.GHz."""
+        access_point = self.coordinator.data["access_point"]
+        if "6.0ghz" in access_point:
+          access_point["6.0ghz"]["isRadioEnabled"] = False
+          await self._hass.async_add_executor_job(self._controller.set_ap_config, access_point)
+          # Doing an async_request_refresh here won't work as the router is resetting.
+          self._attr_is_on = False
+          self.async_write_ha_state()
+        else:
+          raise Exception("6.0GHz band not supported by this gateway.")
 
 
 class GatewayEditSSIDsEditsPendingSwitch(GatewaySwitch):
@@ -561,3 +629,58 @@ class GatewayEditSSID50GHzSwitch(GatewaySwitch):
         # Show edits pending
         await set_edits_pending(True)
 
+
+class GatewayEditSSID60GHzSwitch(GatewaySwitch):
+    """Represent a switch for the gateway."""
+
+    _attr_is_on: bool | None = None
+
+    def __init__(self, hass, entry, coordinator, controller):
+        """Set up a new HA T-Mobile Home Internet edit SSID 6.0GHz switch."""
+        super().__init__(hass, entry, coordinator, controller)
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        return "mdi:access-point"
+
+    @property
+    def name(self) -> str:
+        """Return the name of this switch."""
+        return f"T-Mobile Edit SSID 6.0GHz"
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return slugify(f"{self._entity_type}_tmobile_home_internet_edit_ssid_6_0ghz")
+
+    @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Set entity disabled by default."""
+        return False
+
+    @property
+    def entity_registry_visible_default(self) -> bool:
+        """Set entity hidden by default."""
+        return False
+
+    @property
+    def is_on(self) -> bool:
+        """Return the value of this switch."""
+        return self._attr_is_on
+
+    async def async_turn_on(self, **kwargs):
+        """Enable 6.0GHz band."""
+        self._attr_is_on = True
+        self.async_write_ha_state()
+
+        # Show edits pending
+        await set_edits_pending(True)
+
+    async def async_turn_off(self, **kwargs):
+        """Disable 6.0GHz band."""
+        self._attr_is_on = False
+        self.async_write_ha_state()
+
+        # Show edits pending
+        await set_edits_pending(True)

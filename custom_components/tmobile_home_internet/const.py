@@ -27,6 +27,10 @@ SCHEMA_SERVICE_ENABLE_50_WIFI: Final = {
     vol.Required("enabled"): cv.boolean,
 }
 
+SCHEMA_SERVICE_ENABLE_60_WIFI: Final = {
+    vol.Required("enabled"): cv.boolean,
+}
+
 SCHEMA_SERVICE_SET_24_WIFI_POWER: Final = {
     vol.Required("power_level"): vol.In(["Full","Half"]),
 }
@@ -61,6 +65,7 @@ SCHEMA_SERVICE_GET_CELL_STATUS: Final = {}
 SERVICE_REBOOT_GATEWAY: Final = "reboot_gateway"
 SERVICE_ENABLE_24_WIFI: Final = "wifi24ghz_enable"
 SERVICE_ENABLE_50_WIFI: Final = "wifi50ghz_enable"
+SERVICE_ENABLE_60_WIFI: Final = "wifi60ghz_enable"
 SERVICE_SET_24_WIFI_POWER: Final = "set_wifi24ghz_power"
 SERVICE_SET_50_WIFI_POWER: Final = "set_wifi50ghz_power"
 SERVICE_GET_CLIENT_LIST: Final = "get_client_list"

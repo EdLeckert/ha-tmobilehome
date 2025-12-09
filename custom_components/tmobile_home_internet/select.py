@@ -82,6 +82,11 @@ class GatewayWiFi24GHzChannelSelect(GatewaySelect):
         return slugify(f"{self._entity_type}_tmobile_home_internet_wifi_2_4GHz_channel")
 
     @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Set entity disabled by default."""
+        return False
+
+    @property
     def options(self) -> list[str]:
         """A list of available options as strings"""
         return ["Auto", "1", "2", "3"]
@@ -90,7 +95,10 @@ class GatewayWiFi24GHzChannelSelect(GatewaySelect):
     def current_option(self) -> str:
         """The current select option"""
         access_point = self._coordinator.data["access_point"]
-        return access_point["2.4ghz"]["channel"]
+        if "2.4ghz" in access_point:
+          if "channel" in access_point["2.4ghz"]:
+            return access_point["2.4ghz"]["channel"]
+        return None
 
     async def async_select_option(self, option: str) -> None:
         """Change the selected option."""
@@ -123,6 +131,11 @@ class GatewayWiFi50GHzChannelSelect(GatewaySelect):
         return slugify(f"{self._entity_type}_tmobile_home_internet_wifi_5_0GHz_channel")
 
     @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Set entity disabled by default."""
+        return False
+
+    @property
     def options(self) -> list[str]:
         """A list of available options as strings"""
         return ["Auto", "36", "40", "44", "48", "52", "56", "60", "64", "100", "104", "108", "112", "116", "120", "124", "128", "132", "136", "140", "144", "149", "153", "157", "161", "165"]
@@ -131,7 +144,10 @@ class GatewayWiFi50GHzChannelSelect(GatewaySelect):
     def current_option(self) -> str:
         """The current select option"""
         access_point = self._coordinator.data["access_point"]
-        return access_point["5.0ghz"]["channel"]
+        if "5.0ghz" in access_point:
+          if "channel" in access_point["5.0ghz"]:
+            return access_point["5.0ghz"]["channel"]
+        return None
 
     async def async_select_option(self, option: str) -> None:
         """Change the selected option."""
@@ -164,6 +180,11 @@ class GatewayWiFi24GHzBandwidthSelect(GatewaySelect):
         return slugify(f"{self._entity_type}_tmobile_home_internet_wifi_2_4GHz_bandwidth")
 
     @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Set entity disabled by default."""
+        return False
+
+    @property
     def options(self) -> list[str]:
         """A list of available options as strings"""
         return ["Auto", "20MHz", "40MHz"]
@@ -172,7 +193,10 @@ class GatewayWiFi24GHzBandwidthSelect(GatewaySelect):
     def current_option(self) -> str:
         """The current select option"""
         access_point = self._coordinator.data["access_point"]
-        return access_point["2.4ghz"]["channelBandwidth"]
+        if "2.4ghz" in access_point:
+          if "channelBandwidth" in access_point["2.4ghz"]:
+            return access_point["2.4ghz"]["channelBandwidth"]
+        return None
 
     async def async_select_option(self, option: str) -> None:
         """Change the selected option."""
@@ -205,6 +229,11 @@ class GatewayWiFi50GHzBandwidthSelect(GatewaySelect):
         return slugify(f"{self._entity_type}_tmobile_home_internet_wifi_5_0GHz_bandwidth")
 
     @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Set entity disabled by default."""
+        return False
+
+    @property
     def options(self) -> list[str]:
         """A list of available options as strings"""
         return ["Auto", "20MHz", "40MHz", "80MHz"]
@@ -213,7 +242,10 @@ class GatewayWiFi50GHzBandwidthSelect(GatewaySelect):
     def current_option(self) -> str:
         """The current select option"""
         access_point = self._coordinator.data["access_point"]
-        return access_point["5.0ghz"]["channelBandwidth"]
+        if "5.0ghz" in access_point:
+          if "channelBandwidth" in access_point["5.0ghz"]:
+            return access_point["5.0ghz"]["channelBandwidth"]
+        return None
 
     async def async_select_option(self, option: str) -> None:
         """Change the selected option."""

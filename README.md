@@ -382,6 +382,9 @@ cards:
             name: 2.4GHz
           - entity: switch.t_mobile_edit_ssid_5_0ghz
             name: 5.0GHz
+# NOTE! Uncomment for G5AR. Comments will not be preserved in YAML.
+#          - entity: switch.t_mobile_edit_ssid_6_0ghz
+#            name: 6.0GHz
         show_header_toggle: false
         title: Edit SSID
       - type: horizontal-stack

@@ -34,6 +34,7 @@ async def set_ssid_edit_controls(hass: HomeAssistant, coordinator, ssid_index: i
     guest = coordinator.data["access_point"]['ssids'][ssid_index]["guest"]
     ssid2_4ghz = coordinator.data["access_point"]['ssids'][ssid_index]["2.4ghzSsid"]
     ssid5_0ghz = coordinator.data["access_point"]['ssids'][ssid_index]["5.0ghzSsid"]
+    ssid6_0ghz = coordinator.data["access_point"]['ssids'][ssid_index].get("6.0ghzSsid", False)  # May not exist on all gateways
 
     # Check ssidName
     name_valid = hass.states.get("switch.t_mobile_edit_ssid_edits_name_valid").state
@@ -127,6 +128,14 @@ async def set_ssid_edit_controls(hass: HomeAssistant, coordinator, ssid_index: i
     await hass.services.async_call(
                 "switch", action, 
                 {"entity_id": "switch.t_mobile_edit_ssid_5_0ghz"}, 
+                blocking=True
+            )
+
+    # Set 6.0ghzSsid to gateway value
+    action = "turn_on" if ssid6_0ghz else "turn_off"
+    await hass.services.async_call(
+                "switch", action,
+                {"entity_id": "switch.t_mobile_edit_ssid_6_0ghz"},
                 blocking=True
             )
 

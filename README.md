@@ -42,7 +42,9 @@ Several types of entities are provided:
 
 
 ### Simple Sensor Entities
-`Simple Sensor Entities` can be used directly on dashboards in cards such as the `Entities` card.
+`Simple Sensor Entities` can be used directly on dashboards in cards such as the `Entities` card. All
+`4G` and `5G` signal-related entities are disabled by default, since they update very frequently and
+are not supported by all gateway models.
 
 All entities begin with `T-Mobile`, which will be omitted from the "Friendly Name" here for brevity.
 
@@ -380,6 +382,9 @@ cards:
             name: 2.4GHz
           - entity: switch.t_mobile_edit_ssid_5_0ghz
             name: 5.0GHz
+# NOTE! Uncomment for G5AR. Comments will not be preserved in YAML.
+#          - entity: switch.t_mobile_edit_ssid_6_0ghz
+#            name: 6.0GHz
         show_header_toggle: false
         title: Edit SSID
       - type: horizontal-stack

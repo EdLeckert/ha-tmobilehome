@@ -30,6 +30,19 @@ wifi50ghz_enable:
       selector:
         boolean:
 
+wifi60ghz_enable:
+  target:
+    entity:
+      integration: tmobile_home_internet
+      device_class: gateway
+  fields:
+    enabled:
+      required: true
+      default: True
+      example: False
+      selector:
+        boolean:
+
 set_wifi24ghz_power:
   target:
     entity:
@@ -133,16 +146,3 @@ get_cell_status:
       integration: tmobile_home_internet
       device_class: gateway
 
-
-# set_wifi_ssid:
-#   target:
-#     entity:
-#       integration: tmobile_home_internet
-#       device_class: gateway
-#   fields:
-#     ssid:
-#       required: true
-#       example: "MyWifi"
-#       selector:
-#         text:
-#           type: "text"

@@ -45,6 +45,16 @@
         }
       }
     },
+    "wifi60ghz_enable": {
+      "name": "Enable/disable 6.0GHz Wi-Fi",
+      "description": "Enable/disable 6.0GHz Wi-Fi on T-Mobile Home Internet Gateways that support it.",
+      "fields": {
+        "enabled": {
+          "name": "Enabled",
+          "description": "Turns on or off the 6.0GHz WiFi. WARNING: Only turn WiFi off if you have a wired connection to your gateway. Gateway will reset if this setting is changed, and may lose communications for a minute or more."
+        }
+      }
+    },
     "set_wifi24ghz_power": {
       "name": "Set 2.4GHz Wi-Fi Transmission Power",
       "description": "Set 2.4GHz Wi-Fi transmission power level on T-Mobile Home Internet Gateway.",

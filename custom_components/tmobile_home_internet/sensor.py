@@ -16,6 +16,7 @@ from .const import (
     SERVICE_REBOOT_GATEWAY,
     SERVICE_ENABLE_24_WIFI,
     SERVICE_ENABLE_50_WIFI,
+    SERVICE_ENABLE_60_WIFI,
     SERVICE_SET_24_WIFI_POWER,
     SERVICE_SET_50_WIFI_POWER,
     SERVICE_SET_CLIENT_HOSTNAME,
@@ -30,6 +31,7 @@ from .const import (
     SCHEMA_SERVICE_REBOOT_GATEWAY,
     SCHEMA_SERVICE_ENABLE_24_WIFI,
     SCHEMA_SERVICE_ENABLE_50_WIFI,
+    SCHEMA_SERVICE_ENABLE_60_WIFI,
     SCHEMA_SERVICE_SET_24_WIFI_POWER,
     SCHEMA_SERVICE_SET_50_WIFI_POWER,
     SCHEMA_SERVICE_SET_CLIENT_HOSTNAME,
@@ -82,6 +84,14 @@ async def async_setup_entry(
         SERVICE_ENABLE_50_WIFI,
         SCHEMA_SERVICE_ENABLE_50_WIFI,
         "_enable_50_wifi",
+        [GatewayDeviceEntityFeature.CAN_CALL_SERVICES],
+    )
+
+    # This will call Entity._enable_60_wifi
+    platform.async_register_entity_service(
+        SERVICE_ENABLE_60_WIFI,
+        SCHEMA_SERVICE_ENABLE_60_WIFI,
+        "_enable_60_wifi",
         [GatewayDeviceEntityFeature.CAN_CALL_SERVICES],
     )
 
@@ -238,16 +248,17 @@ class GatewayDeviceSensor(GatewaySensor):
         self._controller = controller
         self._store = store
         super().__init__(slow_coordinator)
+        device = self._coordinator._gateway["device"]
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, self._coordinator.config_entry.entry_id)},
             entry_type=DeviceEntryType.SERVICE,
-            connections={(CONNECTION_NETWORK_MAC, self._coordinator._gateway["device"]["macId"])},
-            serial_number=self._coordinator._gateway["device"]["serial"],
-            manufacturer=self._coordinator._gateway["device"]["manufacturer"],
-            model=self._coordinator._gateway["device"]["model"],
-            name=self._coordinator._gateway["device"]["name"],
-            sw_version=self._coordinator._gateway["device"]["softwareVersion"],
-            hw_version=self._coordinator._gateway["device"]["hardwareVersion"],
+            connections={(CONNECTION_NETWORK_MAC, device["macId"])},
+            serial_number=device["serial"],
+            manufacturer=device["manufacturer"],
+            model=device["model"],
+            name=device.get("name", device.get("model")),
+            sw_version=device["softwareVersion"],
+            hw_version=device["hardwareVersion"],
         )
 
     @property
@@ -282,9 +293,10 @@ class GatewayDeviceSensor(GatewaySensor):
         return attributes
 
     @property
-    def native_value(self) -> int:
+    def native_value(self) -> str:
         """Return the value of this sensor."""
-        return self._coordinator._gateway["device"]["friendlyName"]
+        device = self._coordinator._gateway["device"]
+        return device.get("friendlyName", device.get("model"))
 
     # Services
     async def _reboot_gateway(self):
@@ -302,6 +314,15 @@ class GatewayDeviceSensor(GatewaySensor):
         access_point = self._coordinator.data["access_point"]
         access_point["5.0ghz"]["isRadioEnabled"] = enabled
         await self._hass.async_add_executor_job(self._controller.set_ap_config, access_point)
+
+    async def _enable_60_wifi(self, enabled: bool) -> None:
+        """Enable or disable 6.0GHz WiFi."""
+        access_point = self._coordinator.data["access_point"]
+        if "6.0ghz" in access_point:
+          access_point["6.0ghz"]["isRadioEnabled"] = enabled
+          await self._hass.async_add_executor_job(self._controller.set_ap_config, access_point)
+        else:
+          raise Exception("6.0GHz band not supported by this gateway.")
 
     async def _set_24_wifi_power(self, power_level: int) -> None:
         """Set 2.4GHz WiFi power level."""
@@ -370,7 +391,7 @@ class GatewayDeviceSensor(GatewaySensor):
             client_eth.update({'interface' : 'Wired' })
 
         # Combine dicts into single dict for easier display in grid cards
-        combined_clients = { 'clients' : clients['2.4ghz'] + clients['5.0ghz'] + clients['ethernet'] }
+        combined_clients = { 'clients' : clients['2.4ghz'] + clients['5.0ghz'] + clients['ethernet'] + clients.get('6.0ghz', []) + clients.get('wifi', []) }
 
         # Update hostnames with local edits
         edited_clients = await self._store.async_load() or []
@@ -454,7 +475,7 @@ class GatewayAccessPointSensor(GatewaySensor):
         return attributes
 
     @property
-    def native_value(self) -> int:
+    def native_value(self) -> str:
         """Return the value of this sensor."""
         return self.coordinator.data["access_point"]["ssids"][0]["ssidName"]
 
@@ -503,6 +524,10 @@ class GatewayClientsSensor(GatewaySensor):
         """Return the value of this sensor."""
         clients = self.coordinator.data["clients"]
         total_clients = len(clients["2.4ghz"]) + len(clients["5.0ghz"]) + len(clients["ethernet"])
+        if "6.0ghz" in clients:
+            total_clients += len(clients["6.0ghz"])
+        if "wifi" in clients:
+            total_clients += len(clients["wifi"])
         return total_clients
 
 
@@ -543,12 +568,13 @@ class GatewayCellSensor(GatewaySensor):
     @property
     def native_value(self) -> str | None:
         """Return the value of this sensor."""
-        if "4g" in self.coordinator.data["cell"] and "5g" in self.coordinator.data["cell"]:
-            return "Bands: " + ' '.join(self.coordinator.data["cell"]["4g"]["sector"]["bands"]) + ' ' + ' '.join(self.coordinator.data["cell"]["5g"]["sector"]["bands"])
+        cell = self.coordinator.data["cell"]
+        if "4g" in cell and "5g" in cell:
+            return "Bands: " + ' '.join(cell["4g"]["sector"]["bands"]) + ' ' + ' '.join(cell["5g"]["sector"]["bands"])
         elif "4g" in self.coordinator.data["cell"]:
-            return "Bands: " + ' '.join(self.coordinator.data["cell"]["4g"]["sector"]["bands"])
+            return "Bands: " + ' '.join(cell["4g"]["sector"]["bands"])
         elif "5g" in self.coordinator.data["cell"]:
-            return "Bands: " + ' '.join(self.coordinator.data["cell"]["5g"]["sector"]["bands"])
+            return "Bands: " + ' '.join(cell["5g"]["sector"]["bands"])
         return None
 
 class GatewayDeviceSimSensor(GatewaySensor):
@@ -581,9 +607,10 @@ class GatewayDeviceSimSensor(GatewaySensor):
         return attributes
 
     @property
-    def native_value(self) -> int:
+    def native_value(self) -> str:
         """Return the value of this sensor."""
-        return self.coordinator._gateway["device"]["friendlyName"]
+        device = self._coordinator._gateway["device"]
+        return device.get("friendlyName", device.get("model"))
 
 
 class Gateway4gBandsSensor(GatewaySensor):
@@ -609,7 +636,12 @@ class Gateway4gBandsSensor(GatewaySensor):
         return slugify(f"{self._entity_type}_tmobile_home_internet_4g_bands")
 
     @property
-    def native_value(self) -> int | None:
+    def entity_registry_enabled_default(self) -> bool:
+        """Set entity disabled by default."""
+        return False
+
+    @property
+    def native_value(self) -> str | None:
         """Return the value of this sensor."""
         if "4g" not in self.coordinator.data["cell"]:
             return None
@@ -637,6 +669,11 @@ class Gateway4gRSRPSensor(GatewaySensor):
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
         return slugify(f"{self._entity_type}_tmobile_home_internet_4g_RSRP")
+
+    @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Set entity disabled by default."""
+        return False
 
     @property
     def device_class(self) -> SensorDeviceClass | None:
@@ -683,6 +720,11 @@ class Gateway4gRSRQSensor(GatewaySensor):
         return slugify(f"{self._entity_type}_tmobile_home_internet_4g_RSRQ")
 
     @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Set entity disabled by default."""
+        return False
+
+    @property
     def device_class(self) -> SensorDeviceClass | None:
         """Return the type of sensor."""
         return SensorDeviceClass.SIGNAL_STRENGTH
@@ -725,6 +767,11 @@ class Gateway4gSINRSensor(GatewaySensor):
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
         return slugify(f"{self._entity_type}_tmobile_home_internet_4g_SINR")
+
+    @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Set entity disabled by default."""
+        return False
 
     @property
     def device_class(self) -> SensorDeviceClass | None:
@@ -771,7 +818,12 @@ class Gateway4gAntennaSensor(GatewaySensor):
         return slugify(f"{self._entity_type}_tmobile_home_internet_4g_antenna")
 
     @property
-    def native_value(self) -> int | None:
+    def entity_registry_enabled_default(self) -> bool:
+        """Set entity disabled by default."""
+        return False
+
+    @property
+    def native_value(self) -> str | None:
         """Return the value of this sensor."""
         if "4g" not in self.coordinator.data["cell"]:
             return None
@@ -801,11 +853,18 @@ class Gateway4gBandwidthSensor(GatewaySensor):
         return slugify(f"{self._entity_type}_tmobile_home_internet_4g_bandwidth")
 
     @property
-    def native_value(self) -> int | None:
+    def entity_registry_enabled_default(self) -> bool:
+        """Set entity disabled by default."""
+        return False
+
+    @property
+    def native_value(self) -> str | None:
         """Return the value of this sensor."""
-        if "4g" not in self.coordinator.data["cell"]:
-            return None
-        return self.coordinator.data["cell"]["4g"]["bandwidth"]
+        cell = self._coordinator.data["cell"]
+        if "4g" in cell:
+          if "bandwidth" in cell["4g"]:
+            return cell["4g"]["bandwidth"]
+        return None
 
 
 class Gateway4gECGISensor(GatewaySensor):
@@ -831,11 +890,18 @@ class Gateway4gECGISensor(GatewaySensor):
         return slugify(f"{self._entity_type}_tmobile_home_internet_4g_ecgi")
 
     @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Set entity disabled by default."""
+        return False
+
+    @property
     def native_value(self) -> int | None:
         """Return the value of this sensor."""
-        if "4g" not in self.coordinator.data["cell"]:
-            return None
-        return self.coordinator.data["cell"]["4g"]["ecgi"]
+        cell = self._coordinator.data["cell"]
+        if "4g" in cell:
+          if "ecgi" in cell["4g"]:
+            return cell["4g"]["ecgi"]
+        return None
 
 
 class Gateway5gBandsSensor(GatewaySensor):
@@ -861,7 +927,12 @@ class Gateway5gBandsSensor(GatewaySensor):
         return slugify(f"{self._entity_type}_tmobile_home_internet_5g_bands")
 
     @property
-    def native_value(self) -> int | None:
+    def entity_registry_enabled_default(self) -> bool:
+        """Set entity disabled by default."""
+        return False
+
+    @property
+    def native_value(self) -> str | None:
         """Return the value of this sensor."""
         if "5g" not in self.coordinator.data["cell"]:
             return None
@@ -889,6 +960,11 @@ class Gateway5gRSRPSensor(GatewaySensor):
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
         return slugify(f"{self._entity_type}_tmobile_home_internet_5g_RSRP")
+
+    @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Set entity disabled by default."""
+        return False
 
     @property
     def device_class(self) -> SensorDeviceClass | None:
@@ -936,6 +1012,11 @@ class Gateway5gRSRQSensor(GatewaySensor):
         return slugify(f"{self._entity_type}_tmobile_home_internet_5g_RSRQ")
 
     @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Set entity disabled by default."""
+        return False
+
+    @property
     def device_class(self) -> SensorDeviceClass | None:
         """Return the type of sensor."""
         return SensorDeviceClass.SIGNAL_STRENGTH
@@ -978,6 +1059,11 @@ class Gateway5gSINRSensor(GatewaySensor):
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
         return slugify(f"{self._entity_type}_tmobile_home_internet_5g_SINR")
+
+    @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Set entity disabled by default."""
+        return False
 
     @property
     def device_class(self) -> SensorDeviceClass | None:
@@ -1024,7 +1110,12 @@ class Gateway5gAntennaSensor(GatewaySensor):
         return slugify(f"{self._entity_type}_tmobile_home_internet_5g_antenna")
 
     @property
-    def native_value(self) -> int | None:
+    def entity_registry_enabled_default(self) -> bool:
+        """Set entity disabled by default."""
+        return False
+
+    @property
+    def native_value(self) -> str | None:
         """Return the value of this sensor."""
         if "5g" not in self.coordinator.data["cell"]:
             return None
@@ -1054,11 +1145,18 @@ class Gateway5gBandwidthSensor(GatewaySensor):
         return slugify(f"{self._entity_type}_tmobile_home_internet_5g_bandwidth")
 
     @property
-    def native_value(self) -> int | None:
+    def entity_registry_enabled_default(self) -> bool:
+        """Set entity disabled by default."""
+        return False
+
+    @property
+    def native_value(self) -> str | None:
         """Return the value of this sensor."""
-        if "5g" not in self.coordinator.data["cell"]:
-            return None
-        return self.coordinator.data["cell"]["5g"]["bandwidth"]
+        cell = self._coordinator.data["cell"]
+        if "5g" in cell:
+          if "bandwidth" in cell["5g"]:
+            return cell["5g"]["bandwidth"]
+        return None
 
 
 class Gateway5gECGISensor(GatewaySensor):
@@ -1082,6 +1180,11 @@ class Gateway5gECGISensor(GatewaySensor):
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
         return slugify(f"{self._entity_type}_tmobile_home_internet_5g_ecgi")
+
+    @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Set entity disabled by default."""
+        return False
 
     @property
     def native_value(self) -> int | None:

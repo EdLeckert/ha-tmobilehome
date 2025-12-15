@@ -927,6 +927,11 @@ class Gateway5gBandsSensor(GatewaySensor):
         return slugify(f"{self._entity_type}_tmobile_home_internet_5g_bands")
 
     @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Set entity disabled by default."""
+        return False
+
+    @property
     def native_value(self) -> str | None:
         """Return the value of this sensor."""
         if "5g" not in self.coordinator.data["cell"]:
@@ -955,6 +960,11 @@ class Gateway5gRSRPSensor(GatewaySensor):
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
         return slugify(f"{self._entity_type}_tmobile_home_internet_5g_RSRP")
+
+    @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Set entity disabled by default."""
+        return False
 
     @property
     def device_class(self) -> SensorDeviceClass | None:
@@ -1002,6 +1012,11 @@ class Gateway5gRSRQSensor(GatewaySensor):
         return slugify(f"{self._entity_type}_tmobile_home_internet_5g_RSRQ")
 
     @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Set entity disabled by default."""
+        return False
+
+    @property
     def device_class(self) -> SensorDeviceClass | None:
         """Return the type of sensor."""
         return SensorDeviceClass.SIGNAL_STRENGTH
@@ -1046,6 +1061,11 @@ class Gateway5gSINRSensor(GatewaySensor):
         return slugify(f"{self._entity_type}_tmobile_home_internet_5g_SINR")
 
     @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Set entity disabled by default."""
+        return False
+
+    @property
     def device_class(self) -> SensorDeviceClass | None:
         """Return the type of sensor."""
         return SensorDeviceClass.SIGNAL_STRENGTH
@@ -1088,6 +1108,11 @@ class Gateway5gAntennaSensor(GatewaySensor):
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
         return slugify(f"{self._entity_type}_tmobile_home_internet_5g_antenna")
+
+    @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Set entity disabled by default."""
+        return False
 
     @property
     def native_value(self) -> str | None:
@@ -1155,6 +1180,11 @@ class Gateway5gECGISensor(GatewaySensor):
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
         return slugify(f"{self._entity_type}_tmobile_home_internet_5g_ecgi")
+
+    @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Set entity disabled by default."""
+        return False
 
     @property
     def native_value(self) -> int | None:

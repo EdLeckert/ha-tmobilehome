@@ -42,7 +42,9 @@ Several types of entities are provided:
 
 
 ### Simple Sensor Entities
-`Simple Sensor Entities` can be used directly on dashboards in cards such as the `Entities` card.
+`Simple Sensor Entities` can be used directly on dashboards in cards such as the `Entities` card. All
+`4G` and `5G` signal-related entities are disabled by default, since they update very frequently and
+are not supported by all gateway models.
 
 All entities begin with `T-Mobile`, which will be omitted from the "Friendly Name" here for brevity.
 
